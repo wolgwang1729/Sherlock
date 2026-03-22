@@ -488,7 +488,7 @@ function HomeContent() {
 
 export default function Home() {
   return (
-    <Suspense fallback={<DashboardSkeleton />}>
+    <Suspense fallback={null}>
       <HomeContent />
     </Suspense>
   );
