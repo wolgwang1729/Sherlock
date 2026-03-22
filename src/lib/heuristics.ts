@@ -1,5 +1,5 @@
-import { BlockContext, HeuristicResult, TransactionAnalysis, Classification, TransactionChainAnalysis, HeuristicId, AnalysisSummary, SummaryScriptType, HEURISTIC_IDS } from '../types';
-import { calculateFeeRateStats, incrementAddressFrequency, isCoinbase } from '../utils';
+import { BlockContext, HeuristicResult, TransactionAnalysis, Classification, TransactionChainAnalysis, HeuristicId, AnalysisSummary, SummaryScriptType, HEURISTIC_IDS, WarningCode, WarningSeverity, UiWarning, ScriptTypeCountMap, OpReturnDetail } from '../types';
+import { calculateFeeRateStats, incrementAddressFrequency, isCoinbase, roundNumber } from '../utils';
 import { detectCoinjoin } from './detectors/coinjoin';
 import { normalizeSummaryScriptType } from './detectors/utils';
 export { normalizeSummaryScriptType };
@@ -32,6 +32,27 @@ export {
 };
 
 const HEURISTIC_SAMPLE_LIMIT = 5;
+
+const WARNING_SEVERITY: Partial<Record<WarningCode, WarningSeverity>> = {
+  RBF_SIGNALING: 'warn',
+  HIGH_FEE: 'high',
+  DUST_OUTPUT: 'warn',
+  UNKNOWN_OUTPUT_SCRIPT: 'info',
+};
+
+function toUiWarning(code: WarningCode): UiWarning {
+  return {
+    code,
+    severity: WARNING_SEVERITY[code] ?? 'info',
+  };
+}
+
+function countScriptTypes(values: string[]): ScriptTypeCountMap {
+  return values.reduce<ScriptTypeCountMap>((accumulator, scriptType) => {
+    accumulator[scriptType] = (accumulator[scriptType] ?? 0) + 1;
+    return accumulator;
+  }, {});
+}
 
 export function emptyScriptTypeDistribution(): Record<SummaryScriptType, number> {
   return {
@@ -168,8 +189,39 @@ export function analyzeTransactionHeuristics(tx: TransactionAnalysis, context: B
     op_return_protocol: output.op_return_protocol,
   }));
 
+  const opReturnDetails: OpReturnDetail[] = tx.vout
+    .filter((output) => output.script_type === 'op_return')
+    .map((output) => ({
+      n: output.n,
+      protocol: output.op_return_protocol ?? 'unknown',
+      data_utf8: output.op_return_data_utf8 ?? null,
+      data_hex: output.op_return_data_hex ?? '',
+    }));
+
+  const feePctOfInput = tx.total_input_sats > 0 ? roundNumber((tx.fee_sats / tx.total_input_sats) * 100) : 0;
+  const warnings = tx.warnings.map((warning) => toUiWarning(warning.code));
+
   return {
     txid: tx.txid,
+    wtxid: tx.wtxid,
+    version: tx.version,
+    weight: tx.weight,
+    vbytes: tx.vbytes,
+    fee_sats: tx.fee_sats,
+    total_input_sats: tx.total_input_sats,
+    total_output_sats: tx.total_output_sats,
+    fee_pct_of_input: feePctOfInput,
+    rbf_signaling: tx.rbf_signaling,
+    locktime_type: tx.locktime_type,
+    locktime_value: tx.locktime_value,
+    segwit_savings: tx.segwit_savings,
+    warnings,
+    witness_input_count: tx.vin.filter((input) => input.witness.length > 0).length,
+    input_script_counts: countScriptTypes(tx.vin.filter((input) => !input.coinbase).map((input) => input.script_type)),
+    output_script_counts: countScriptTypes(tx.vout.map((output) => output.script_type)),
+    has_op_return: opReturnDetails.length > 0,
+    op_return_count: opReturnDetails.length,
+    op_return_details: opReturnDetails,
     heuristics: normalizeHeuristics(heuristics),
     classification: classifyTransaction(tx, heuristics),
     fee_rate_sat_vb: tx.fee_rate_sat_vb,
@@ -190,9 +242,19 @@ export function analyzeTransactionHeuristics(tx: TransactionAnalysis, context: B
 
 export function buildAnalysisSummary(parsedTransactions: TransactionAnalysis[], transactions: TransactionChainAnalysis[]): AnalysisSummary {
   const scriptTypeDistribution = emptyScriptTypeDistribution();
+  const warningCounts: Partial<Record<WarningCode, number>> = {};
+  let warningTransactions = 0;
+
   for (const tx of parsedTransactions) {
     for (const output of tx.vout) {
       scriptTypeDistribution[normalizeSummaryScriptType(output.script_type)] += 1;
+    }
+
+    if (tx.warnings.length > 0) {
+      warningTransactions += 1;
+      for (const warning of tx.warnings) {
+        warningCounts[warning.code] = (warningCounts[warning.code] ?? 0) + 1;
+      }
     }
   }
 
@@ -202,6 +264,8 @@ export function buildAnalysisSummary(parsedTransactions: TransactionAnalysis[], 
     total_transactions_analyzed: transactions.length,
     heuristics_applied: [...HEURISTIC_IDS],
     flagged_transactions: flaggedTransactions,
+    warning_counts: warningCounts,
+    warning_transactions: warningTransactions,
     script_type_distribution: scriptTypeDistribution,
     fee_rate_stats: calculateFeeRateStats(parsedTransactions),
   };

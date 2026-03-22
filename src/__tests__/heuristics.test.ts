@@ -60,6 +60,19 @@ describe('heuristics', () => {
   it('includes compact input and output graph data in analyzed transactions', () => {
     const tx = makeTx({
       txid: 'graph-tx'.padEnd(64, '0'),
+      wtxid: 'graph-wtx'.padEnd(64, 'f'),
+      rbf_signaling: true,
+      locktime_type: 'block_height',
+      locktime_value: 800_000,
+      segwit_savings: {
+        witness_bytes: 50,
+        non_witness_bytes: 90,
+        total_bytes: 140,
+        weight_actual: 470,
+        weight_if_legacy: 560,
+        savings_pct: 16.07,
+      },
+      warnings: [{ code: 'RBF_SIGNALING' }, { code: 'HIGH_FEE' }],
       vin: [
         makeInput({
           txid: 'source-a'.padEnd(64, '1'),
@@ -74,7 +87,15 @@ describe('heuristics', () => {
       ],
       vout: [
         makeOutput({ n: 0, value_sats: 100_000, address: 'recipient-a', script_type: 'p2wpkh' }),
-        makeOutput({ n: 1, value_sats: 20_000, address: null, script_type: 'op_return', op_return_protocol: 'opentimestamps' }),
+        makeOutput({
+          n: 1,
+          value_sats: 20_000,
+          address: null,
+          script_type: 'op_return',
+          op_return_protocol: 'opentimestamps',
+          op_return_data_hex: '736f622d32303236',
+          op_return_data_utf8: null,
+        }),
       ],
       total_input_sats: 125_000,
       total_output_sats: 120_000,
@@ -82,6 +103,32 @@ describe('heuristics', () => {
     });
 
     const analyzed = analyzeTransactionHeuristics(tx, buildBlockContext([tx]));
+
+    expect(analyzed).toMatchObject({
+      wtxid: 'graph-wtx'.padEnd(64, 'f'),
+      rbf_signaling: true,
+      locktime_type: 'block_height',
+      locktime_value: 800_000,
+      has_op_return: true,
+      op_return_count: 1,
+      witness_input_count: 0,
+      warnings: [
+        { code: 'RBF_SIGNALING', severity: 'warn' },
+        { code: 'HIGH_FEE', severity: 'high' },
+      ],
+    });
+
+    expect(analyzed.input_script_counts?.p2wpkh).toBe(1);
+    expect(analyzed.output_script_counts?.p2wpkh).toBe(1);
+    expect(analyzed.output_script_counts?.op_return).toBe(1);
+    expect(analyzed.op_return_details).toEqual([
+      {
+        n: 1,
+        protocol: 'opentimestamps',
+        data_utf8: null,
+        data_hex: '736f622d32303236',
+      },
+    ]);
 
     expect(analyzed.graph).toMatchObject({
       total_input_sats: 125_000,
@@ -203,7 +250,11 @@ describe('heuristics', () => {
         makeOutput({ n: 4, value_sats: 30_000 }),
       ],
     });
-    const txB = makeTx({ txid: 'b'.repeat(64), vout: [makeOutput({ n: 0, script_type: 'op_return', address: null })] });
+    const txB = makeTx({
+      txid: 'b'.repeat(64),
+      vout: [makeOutput({ n: 0, script_type: 'op_return', address: null })],
+      warnings: [{ code: 'RBF_SIGNALING' }, { code: 'DUST_OUTPUT' }],
+    });
 
     const context = buildBlockContext([txA, txB]);
     const analyzedA = analyzeTransactionHeuristics(txA, context);
@@ -215,6 +266,9 @@ describe('heuristics', () => {
     expect(summary.total_transactions_analyzed).toBe(2);
     expect(summary.heuristics_applied.length).toBe(10);
     expect(summary.script_type_distribution.op_return).toBeGreaterThanOrEqual(1);
+    expect(summary.warning_transactions).toBe(1);
+    expect(summary.warning_counts?.RBF_SIGNALING).toBe(1);
+    expect(summary.warning_counts?.DUST_OUTPUT).toBe(1);
   });
 
   it('detects BIP69-style ordering fingerprints', () => {

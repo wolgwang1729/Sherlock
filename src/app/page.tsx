@@ -339,6 +339,44 @@ function HomeContent() {
     setLoadingBlockIndex(null);
   }, [cleanupSession, sessionFromUrl, setSessionInUrl]);
 
+  const handleLoadExampleData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      await cleanupSession();
+      setResult(null);
+
+      const initRequest = fetch('/api/analyze-block?action=init-example', {
+        method: 'POST',
+      });
+
+      const finishedDuringInitialPhase = await Promise.race([
+        initRequest.then(() => true),
+        wait(INITIAL_FORM_LOADING_MS).then(() => false),
+      ]);
+
+      if (!finishedDuringInitialPhase) {
+        setInitializingDashboard(true);
+      }
+
+      const res = await initRequest;
+      const data = await res.json();
+      if (data.ok === false) {
+        throw new Error(data.error?.message || 'Failed to load example data');
+      }
+
+      const nextSessionId = data.sessionId ?? null;
+      setSessionId(nextSessionId);
+      setSessionInUrl(nextSessionId);
+      setResult(data.report);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setInitializingDashboard(false);
+      setLoading(false);
+    }
+  }, [cleanupSession, setSessionInUrl]);
+
   useEffect(() => {
     if (!sessionFromUrl || restoredSessionRef.current === sessionFromUrl || sessionId || result || loading) {
       return;
@@ -439,6 +477,16 @@ function HomeContent() {
                   >
                     {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><ArrowRight className="w-5 h-5" /> Analyze Block Data</>}
                   </button>
+                  <button
+                    onClick={handleLoadExampleData}
+                    disabled={loading}
+                    className="cursor-pointer w-full py-3 rounded-xl border border-zinc-700 text-zinc-200 font-semibold flex items-center justify-center gap-2 hover:bg-zinc-800/60 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><ScanSearch className="w-5 h-5" /> Use Example .dat Files</>}
+                  </button>
+                  <p className="text-xs text-zinc-500 text-left">
+                    Don’t have .dat files? Load a sample from the fixtures folder.
+                  </p>
                 </div>
 
                 {error && (

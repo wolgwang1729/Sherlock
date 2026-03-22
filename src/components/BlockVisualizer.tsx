@@ -3,7 +3,7 @@
 import React, { useState, memo, useEffect, useRef, useMemo } from 'react';
 import { ChevronDown, ChevronUp, Copy, ExternalLink, Check, RefreshCw, Box, AlertTriangle, TrendingUp, AlertCircle, CheckCircle2, Wallet, GitMerge, Repeat, Network, ShieldQuestion } from 'lucide-react';
 import TransactionVisualizer from './TransactionVisualizer';
-import { ChainAnalysisFileReport, Classification, HEURISTIC_IDS, HeuristicId, SummaryScriptType, TransactionChainAnalysis } from '../types';
+import { ChainAnalysisFileReport, Classification, HEURISTIC_IDS, HeuristicId, SummaryScriptType, TransactionChainAnalysis, UiWarning } from '../types';
 
 const StatValueLoader = ({ widthClass = 'w-20' }: { widthClass?: string }) => (
   <div className={`h-8 ${widthClass} rounded-md bg-white/10 animate-pulse`} aria-label="Loading value" />
@@ -62,6 +62,20 @@ const HEURISTIC_FILTERS: Array<{ value: 'all' | 'flagged' | HeuristicId; label: 
     label: heuristic.replace(/_/g, ' '),
   })),
 ];
+
+function formatWarningLabel(code: string) {
+  return code.toLowerCase().replace(/_/g, ' ');
+}
+
+function warningChipTone(severity: UiWarning['severity']) {
+  if (severity === 'high') {
+    return 'bg-red-500/15 border-red-500/30 text-red-300';
+  }
+  if (severity === 'warn') {
+    return 'bg-amber-500/15 border-amber-500/30 text-amber-300';
+  }
+  return 'bg-zinc-800/70 border-zinc-700 text-zinc-300';
+}
 
 
 function FeeRateDistribution({ feeRates }: { feeRates: number[] }) {
@@ -531,7 +545,7 @@ export default function BlockVisualizer({
               <>
                 {/* Transaction List */}
                 <div className="space-y-4">
-                  {filteredTransactions.slice(0, visibleTxCount).map((tx: any, idx: number) => (
+                  {filteredTransactions.slice(0, visibleTxCount).map((tx: TransactionChainAnalysis, idx: number) => (
                     <TransactionItem
                       key={tx.txid || idx}
                       tx={tx}
@@ -602,10 +616,14 @@ const ActionToolbar = ({ txid }: { txid: string }) => {
   );
 };
 
-const TransactionItem = memo(({ tx, isExpanded, onToggle }: { tx: any, isExpanded: boolean, onToggle: () => void }) => {
+const TransactionItem = memo(({ tx, isExpanded, onToggle }: { tx: TransactionChainAnalysis, isExpanded: boolean, onToggle: () => void }) => {
   const itemRef = useRef<HTMLDivElement | null>(null);
-  const flaggedCount = Object.values(tx.heuristics || {}).filter((h: any) => h.detected).length;
+  const flaggedCount = Object.values(tx.heuristics || {}).filter((h) => h.detected).length;
   const riskLevel = flaggedCount >= 3 ? 'High Risk' : flaggedCount > 0 ? 'Low Risk' : null;
+  const warningChips = (tx.warnings ?? []).slice(0, 3);
+  const hasRbf = Boolean(tx.rbf_signaling);
+  const hasLocktime = tx.locktime_type && tx.locktime_type !== 'none';
+  const hasOpReturn = Boolean(tx.has_op_return);
 
   let icon = <Wallet className="size-5" />;
   let badgeClass = 'bg-zinc-800 text-zinc-300';
@@ -709,6 +727,32 @@ const TransactionItem = memo(({ tx, isExpanded, onToggle }: { tx: any, isExpande
                   {classificationName}
                 </span>
               </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 mt-2">
+              {hasRbf && (
+                <span className="text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                  RBF
+                </span>
+              )}
+              {hasLocktime && (
+                <span className="text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider bg-blue-500/15 text-blue-300 border border-blue-500/30">
+                  Locktime
+                </span>
+              )}
+              {hasOpReturn && (
+                <span className="text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                  OP_RETURN
+                </span>
+              )}
+              {warningChips.map((warning) => (
+                <span
+                  key={`${tx.txid}-${warning.code}`}
+                  className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider border ${warningChipTone(warning.severity)}`}
+                  title={warning.code}
+                >
+                  {formatWarningLabel(warning.code)}
+                </span>
+              ))}
             </div>
           </div>
           <div className="flex items-center gap-4 shrink-0 self-center">

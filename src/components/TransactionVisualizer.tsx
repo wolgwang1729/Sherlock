@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp, Copy, Check, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react';
-import { TransactionChainAnalysis, HeuristicResult, OutputScriptType } from '../types';
+import { TransactionChainAnalysis, HeuristicResult, OutputScriptType, UiWarning } from '../types';
 
 const HEURISTIC_DESCRIPTIONS: Record<string, string> = {
   cioh: 'Common Input Ownership Heuristic (CIOH): Assumes all inputs of a transaction belong to the same entity unless it is a CoinJoin.',
@@ -35,6 +35,43 @@ function shortenValue(value: string | null | undefined, head = 10, tail = 6) {
     return value;
   }
   return `${value.slice(0, head)}...${value.slice(-tail)}`;
+}
+
+function formatPercent(value?: number) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    return '0.00%';
+  }
+  return `${value.toFixed(2)}%`;
+}
+
+function formatWarningLabel(code: string) {
+  return code.toLowerCase().replace(/_/g, ' ');
+}
+
+function warningTone(severity: UiWarning['severity']) {
+  if (severity === 'high') {
+    return 'bg-red-500/15 border-red-500/30 text-red-300';
+  }
+  if (severity === 'warn') {
+    return 'bg-amber-500/15 border-amber-500/30 text-amber-300';
+  }
+  return 'bg-zinc-800/70 border-zinc-700 text-zinc-300';
+}
+
+function scriptCountsLabel(scriptCounts?: TransactionChainAnalysis['input_script_counts']) {
+  if (!scriptCounts) {
+    return 'None';
+  }
+
+  const entries = Object.entries(scriptCounts).filter((entry) => entry[1] && entry[1] > 0);
+  if (entries.length === 0) {
+    return 'None';
+  }
+
+  return entries
+    .sort((left, right) => right[1] - left[1])
+    .map(([scriptType, count]) => `${count}× ${scriptType}`)
+    .join(' • ');
 }
 
 function getScriptTone(scriptType: OutputScriptType) {
@@ -344,6 +381,9 @@ function Tooltip({ children, tip, className = "inline-flex items-center gap-0.5"
 
 export default function TransactionVisualizer({ tx }: { tx: TransactionChainAnalysis }) {
   const [showRaw, setShowRaw] = useState(false);
+  const [showHeuristics, setShowHeuristics] = useState(true);
+  const warnings = tx.warnings ?? [];
+  const opReturnDetails = tx.op_return_details ?? [];
 
   const heuristics = tx.heuristics || {};
   const heuristicEntries = (Object.entries(heuristics) as [string, HeuristicResult][])
@@ -358,71 +398,177 @@ export default function TransactionVisualizer({ tx }: { tx: TransactionChainAnal
 
       <TransactionFlowGraph tx={tx} />
 
+      <div className="bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 rounded-3xl shadow-2xl relative p-5 mt-6">
+        <h3 className="text-xl font-bold text-white mb-5">Transaction Metadata</h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">TXID</p>
+            <div className="flex items-center mt-1">
+              <p className="text-xs font-mono text-white truncate">{tx.txid}</p>
+              <CopyButton value={tx.txid} />
+            </div>
+            {tx.wtxid && (
+              <>
+                <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500 mt-3">WTXID</p>
+                <div className="flex items-center mt-1">
+                  <p className="text-xs font-mono text-zinc-200 truncate">{tx.wtxid}</p>
+                  <CopyButton value={tx.wtxid} />
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">Fee Diagnostics</p>
+            <p className="text-sm text-white font-semibold mt-1">{formatSats(tx.fee_sats ?? 0)} sats</p>
+            <p className="text-xs text-zinc-400 mt-1">{(tx.fee_rate_sat_vb ?? 0).toFixed(2)} sat/vB</p>
+            <p className="text-xs text-zinc-400">{formatPercent(tx.fee_pct_of_input)} of input value</p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">Execution Profile</p>
+            <p className="text-xs text-zinc-300 mt-1">Version: <span className="font-semibold text-white">{tx.version ?? 0}</span></p>
+            <p className="text-xs text-zinc-300">Weight / vBytes: <span className="font-semibold text-white">{tx.weight ?? 0} / {tx.vbytes ?? 0}</span></p>
+            <p className="text-xs text-zinc-300">Locktime: <span className="font-semibold text-white">{tx.locktime_type ?? 'none'}</span> ({tx.locktime_value ?? 0})</p>
+            <p className="text-xs text-zinc-300">RBF: <span className={`font-semibold ${tx.rbf_signaling ? 'text-amber-300' : 'text-emerald-300'}`}>{tx.rbf_signaling ? 'Enabled' : 'Off'}</span></p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">SegWit Efficiency</p>
+            {tx.segwit_savings ? (
+              <>
+                <p className="text-sm text-white font-semibold mt-1">Saved {tx.segwit_savings.savings_pct.toFixed(2)}%</p>
+                <p className="text-xs text-zinc-400 mt-1">Witness bytes: {tx.segwit_savings.witness_bytes}</p>
+                <p className="text-xs text-zinc-400">Non-witness bytes: {tx.segwit_savings.non_witness_bytes}</p>
+                <p className="text-xs text-zinc-400">Witness inputs: {tx.witness_input_count ?? 0}</p>
+              </>
+            ) : (
+              <p className="text-xs text-zinc-400 mt-1">No witness data for this transaction.</p>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">Script Composition</p>
+            <p className="text-xs text-zinc-300 mt-1">Inputs: <span className="text-white">{scriptCountsLabel(tx.input_script_counts)}</span></p>
+            <p className="text-xs text-zinc-300 mt-2">Outputs: <span className="text-white">{scriptCountsLabel(tx.output_script_counts)}</span></p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">OP_RETURN</p>
+            {tx.has_op_return && opReturnDetails.length > 0 ? (
+              <div className="space-y-2 mt-1">
+                {opReturnDetails.slice(0, 2).map((detail) => (
+                  <div key={`op-return-${detail.n}`} className="text-xs text-zinc-300">
+                    <p>Output #{detail.n} · {detail.protocol}</p>
+                    <p className="text-zinc-400 truncate">{detail.data_utf8 || detail.data_hex}</p>
+                  </div>
+                ))}
+                {opReturnDetails.length > 2 && <p className="text-[11px] text-zinc-500">+{opReturnDetails.length - 2} more OP_RETURN outputs</p>}
+              </div>
+            ) : (
+              <p className="text-xs text-zinc-400 mt-1">No OP_RETURN output detected.</p>
+            )}
+          </div>
+        </div>
+
+        {warnings.length > 0 && (
+          <div className="mt-4 pt-4 border-t border-zinc-800">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500 mb-2">Warnings</p>
+            <div className="flex flex-wrap gap-2">
+              {warnings.map((warning) => (
+                <span
+                  key={`${warning.code}-${warning.severity}`}
+                  className={`text-[10px] uppercase tracking-wider px-2 py-1 rounded-full border font-semibold ${warningTone(warning.severity)}`}
+                >
+                  {formatWarningLabel(warning.code)}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* ── Overview head ── */}
       <div className="bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 rounded-3xl shadow-2xl relative p-5">
-        <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2 relative z-10">
-          Heuristic Analysis Results
-        </h3>
+        <button
+          type="button"
+          onClick={() => setShowHeuristics(!showHeuristics)}
+          className="w-full text-left flex items-center justify-between gap-3 mb-6 cursor-pointer"
+          aria-expanded={showHeuristics}
+          aria-label="Toggle heuristic analysis results"
+        >
+          <h3 className="text-xl font-bold text-white flex items-center gap-2 relative z-10">
+            Heuristic Analysis Results
+          </h3>
+          {showHeuristics ? (
+            <ChevronUp className="w-5 h-5 text-zinc-400" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-zinc-400" />
+          )}
+        </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {heuristicEntries.map(([id, result]) => {
-            const detected = result.detected;
-            const confidence = result.confidence || 'unknown';
+        {showHeuristics && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {heuristicEntries.map(([id, result]) => {
+              const detected = result.detected;
+              const confidence = result.confidence || 'unknown';
 
-            let bg = 'bg-zinc-950/50';
-            let border = 'border-zinc-800';
-            let icon = <CheckCircle2 className="w-5 h-5 text-zinc-600" />;
-            let titleColor = 'text-zinc-500';
+              let bg = 'bg-zinc-950/50';
+              let border = 'border-zinc-800';
+              let icon = <CheckCircle2 className="w-5 h-5 text-zinc-600" />;
+              let titleColor = 'text-zinc-500';
 
-            if (detected) {
-              bg = 'bg-orange-500/5';
-              border = 'border-orange-500/30';
-              icon = <AlertCircle className="w-5 h-5 text-orange-400" />;
-              titleColor = 'text-orange-400';
-            }
+              if (detected) {
+                bg = 'bg-orange-500/5';
+                border = 'border-orange-500/30';
+                icon = <AlertCircle className="w-5 h-5 text-orange-400" />;
+                titleColor = 'text-orange-400';
+              }
 
-            return (
-              <div key={id} className={`${bg} border ${border} rounded-2xl p-4 flex flex-col transition-all group relative`}>
-                <div className="flex items-start justify-between mb-3 shrink-0">
-                  <div className="flex items-center gap-2">
-                    {icon}
-                    <Tooltip tip={HEURISTIC_DESCRIPTIONS[id] || 'Various chain analysis heuristic flags.'}>
-                      <span className={`font-semibold ${titleColor} capitalize cursor-default border-b border-dashed border-zinc-700 group-hover:border-zinc-500`}>
-                        {id.replace(/_/g, ' ')}
-                      </span>
-                    </Tooltip>
-                  </div>
-                </div>
-
-                {!detected && (
-                  <div className="flex-1 relative overflow-hidden pointer-events-none min-h-0">
-                    <div className="absolute inset-0 flex items-center justify-center opacity-[0.03]">
-                      <ShieldCheck className="size-24" />
+              return (
+                <div key={id} className={`${bg} border ${border} rounded-2xl p-4 flex flex-col transition-all group relative`}>
+                  <div className="flex items-start justify-between mb-3 shrink-0">
+                    <div className="flex items-center gap-2">
+                      {icon}
+                      <Tooltip tip={HEURISTIC_DESCRIPTIONS[id] || 'Various chain analysis heuristic flags.'}>
+                        <span className={`font-semibold ${titleColor} capitalize cursor-default border-b border-dashed border-zinc-700 group-hover:border-zinc-500`}>
+                          {id.replace(/_/g, ' ')}
+                        </span>
+                      </Tooltip>
                     </div>
                   </div>
-                )}
 
-                <div className="flex flex-col gap-1 mt-auto shrink-0">
-                  <dl className="space-y-2 text-sm">
-                    <div>
-                      <dt className="text-zinc-500 text-[11px] uppercase tracking-wider font-semibold mb-0.5">Status:</dt>
-                      <dd className="text-zinc-300 font-medium">{detected ? 'Detected' : 'Clean'}</dd>
-                    </div>
-
-                    {detected && (
-                      <div>
-                        <dt className="text-zinc-500 text-[11px] uppercase tracking-wider font-semibold mb-0.5 mt-1">Confidence:</dt>
-                        <dd className="text-zinc-300 font-medium capitalize">{confidence}</dd>
+                  {!detected && (
+                    <div className="flex-1 relative overflow-hidden pointer-events-none min-h-0">
+                      <div className="absolute inset-0 flex items-center justify-center opacity-[0.03]">
+                        <ShieldCheck className="size-24" />
                       </div>
-                    )}
+                    </div>
+                  )}
 
-                    {/* compact mode: do not render extra heuristic fields */}
-                  </dl>
+                  <div className="flex flex-col gap-1 mt-auto shrink-0">
+                    <dl className="space-y-2 text-sm">
+                      <div>
+                        <dt className="text-zinc-500 text-[11px] uppercase tracking-wider font-semibold mb-0.5">Status:</dt>
+                        <dd className="text-zinc-300 font-medium">{detected ? 'Detected' : 'Clean'}</dd>
+                      </div>
+
+                      {detected && (
+                        <div>
+                          <dt className="text-zinc-500 text-[11px] uppercase tracking-wider font-semibold mb-0.5 mt-1">Confidence:</dt>
+                          <dd className="text-zinc-300 font-medium capitalize">{confidence}</dd>
+                        </div>
+                      )}
+
+                      {/* compact mode: do not render extra heuristic fields */}
+                    </dl>
+                  </div>
                 </div>
-              </div>
-            )
-          })}
-        </div>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       {/* ── Raw details toggle ── */}

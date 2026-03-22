@@ -158,4 +158,46 @@ describe('API routes', () => {
       },
     });
   });
+
+  it('initializes analysis from bundled fixture files', async () => {
+    vi.spyOn(analyzer, 'parseBlockSummaries').mockReturnValue([
+      {
+        block_hash: '0000fixture',
+        block_height: 5051,
+        timestamp: 1700000000,
+        tx_count: 2,
+      },
+    ] as any);
+
+    vi.spyOn(analyzer, 'analyzeSingleBlock').mockReturnValue({
+      file: 'blk05051.dat',
+      block_count: 1,
+      block_index: 0,
+      block: {
+        block_hash: '0000fixture',
+        block_height: 5051,
+        tx_count: 2,
+        analysis_summary: {
+          total_transactions_analyzed: 2,
+          heuristics_applied: ['cioh'],
+          flagged_transactions: 0,
+          script_type_distribution: { p2wpkh: 0, p2tr: 0, p2sh: 0, p2pkh: 0, p2wsh: 0, op_return: 0, unknown: 0 },
+          fee_rate_stats: { min_sat_vb: 0, max_sat_vb: 0, median_sat_vb: 0, mean_sat_vb: 0 },
+        },
+        transactions: [],
+      },
+    } as any);
+
+    const response = await POST(new Request('http://localhost/api/analyze-block?action=init-example', { method: 'POST' }));
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      sessionId: expect.any(String),
+      report: {
+        ok: true,
+        mode: 'chain_analysis',
+        block_count: 1,
+      },
+    });
+  });
 });

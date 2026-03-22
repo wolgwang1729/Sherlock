@@ -23,6 +23,8 @@ export type SummaryScriptType = 'p2wpkh' | 'p2tr' | 'p2sh' | 'p2pkh' | 'p2wsh' |
 export type OpReturnProtocol = 'omni' | 'opentimestamps' | 'unknown';
 export type Confidence = 'low' | 'medium' | 'high';
 export type Classification = 'simple_payment' | 'consolidation' | 'coinjoin' | 'self_transfer' | 'batch_payment' | 'unknown';
+export type WarningCode = 'RBF_SIGNALING' | 'HIGH_FEE' | 'DUST_OUTPUT' | 'UNKNOWN_OUTPUT_SCRIPT' | (string & {});
+export type WarningSeverity = 'info' | 'warn' | 'high';
 export type HeuristicId =
   | 'cioh'
   | 'change_detection'
@@ -109,7 +111,11 @@ export interface SegwitSavings {
 }
 
 export interface Warning {
-  code: string;
+  code: WarningCode;
+}
+
+export interface UiWarning extends Warning {
+  severity: WarningSeverity;
 }
 
 export interface TransactionAnalysis {
@@ -182,8 +188,36 @@ export interface TransactionGraphData {
   outputs: TransactionGraphOutput[];
 }
 
+export interface OpReturnDetail {
+  n: number;
+  protocol: OpReturnProtocol;
+  data_utf8: string | null;
+  data_hex: string;
+}
+
+export type ScriptTypeCountMap = Partial<Record<InputScriptType | OutputScriptType, number>>;
+
 export interface TransactionChainAnalysis {
   txid: string;
+  wtxid?: string | null;
+  version?: number;
+  weight?: number;
+  vbytes?: number;
+  fee_sats?: number;
+  total_input_sats?: number;
+  total_output_sats?: number;
+  fee_pct_of_input?: number;
+  rbf_signaling?: boolean;
+  locktime_type?: TransactionAnalysis['locktime_type'];
+  locktime_value?: number;
+  segwit_savings?: SegwitSavings | null;
+  warnings?: UiWarning[];
+  witness_input_count?: number;
+  input_script_counts?: ScriptTypeCountMap;
+  output_script_counts?: ScriptTypeCountMap;
+  has_op_return?: boolean;
+  op_return_count?: number;
+  op_return_details?: OpReturnDetail[];
   heuristics: Record<HeuristicId, HeuristicResult>;
   classification: Classification;
   fee_rate_sat_vb?: number;
@@ -205,6 +239,8 @@ export interface AnalysisSummary {
   total_transactions_analyzed: number;
   heuristics_applied: HeuristicId[];
   flagged_transactions: number;
+  warning_counts?: Partial<Record<WarningCode, number>>;
+  warning_transactions?: number;
   script_type_distribution: Record<SummaryScriptType, number>;
   fee_rate_stats: FeeRateStats;
 }

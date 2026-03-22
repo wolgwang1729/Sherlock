@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { analyzeBlock, analyzeSingleBlock, parseBlockSummaries } from '../../../analyzer';
 import { createWriteStream } from 'fs';
-import { mkdtemp, rm } from 'fs/promises';
+import { access, copyFile, mkdtemp, rm } from 'fs/promises';
 import { basename, join } from 'path';
 import { tmpdir } from 'os';
 import { pipeline } from 'stream/promises';
@@ -128,10 +128,14 @@ async function saveUploadedFiles(formData: FormData): Promise<{ uploadDirPath: s
   }
 }
 
-async function handleInit(req: Request): Promise<NextResponse> {
-  const formData = await req.formData();
-  const { uploadDirPath, blkFilePath, revFilePath, xorFilePath, blkFileName } = await saveUploadedFiles(formData);
-
+async function createInitSession(input: {
+  uploadDirPath: string;
+  blkFilePath: string;
+  revFilePath: string;
+  xorFilePath: string;
+  blkFileName: string;
+}): Promise<NextResponse> {
+  const { uploadDirPath, blkFilePath, revFilePath, xorFilePath, blkFileName } = input;
   try {
     const summaries = parseBlockSummaries({ blkFilePath, revFilePath, xorFilePath, network: 'mainnet' });
     const firstBlock = analyzeSingleBlock({ blkFilePath, revFilePath, xorFilePath, network: 'mainnet' }, 0);
@@ -157,6 +161,66 @@ async function handleInit(req: Request): Promise<NextResponse> {
     await rm(uploadDirPath, { recursive: true, force: true });
     throw error;
   }
+}
+
+async function handleInit(req: Request): Promise<NextResponse> {
+  const formData = await req.formData();
+  const files = await saveUploadedFiles(formData);
+  return createInitSession(files);
+}
+
+async function saveFixtureFiles(): Promise<{ uploadDirPath: string; blkFilePath: string; revFilePath: string; xorFilePath: string; blkFileName: string }> {
+  const fixtureDir = join(process.cwd(), 'fixtures');
+  const fixtureNames = {
+    blk: 'blk05051.dat',
+    rev: 'rev05051.dat',
+    xor: 'xor.dat',
+  };
+
+  const fixturePaths = {
+    blk: join(fixtureDir, fixtureNames.blk),
+    rev: join(fixtureDir, fixtureNames.rev),
+    xor: join(fixtureDir, fixtureNames.xor),
+  };
+
+  try {
+    await Promise.all([
+      access(fixturePaths.blk),
+      access(fixturePaths.rev),
+      access(fixturePaths.xor),
+    ]);
+  } catch {
+    throw new Error('Example fixture files are missing. Expected fixtures/blk05051.dat, fixtures/rev05051.dat, and fixtures/xor.dat');
+  }
+
+  const uploadDirPath = await mkdtemp(join(tmpdir(), 'sherlock-upload-'));
+  const blkFilePath = join(uploadDirPath, fixtureNames.blk);
+  const revFilePath = join(uploadDirPath, fixtureNames.rev);
+  const xorFilePath = join(uploadDirPath, fixtureNames.xor);
+
+  try {
+    await Promise.all([
+      copyFile(fixturePaths.blk, blkFilePath),
+      copyFile(fixturePaths.rev, revFilePath),
+      copyFile(fixturePaths.xor, xorFilePath),
+    ]);
+  } catch (error) {
+    await rm(uploadDirPath, { recursive: true, force: true });
+    throw error;
+  }
+
+  return {
+    uploadDirPath,
+    blkFilePath,
+    revFilePath,
+    xorFilePath,
+    blkFileName: fixtureNames.blk,
+  };
+}
+
+async function handleInitExample(): Promise<NextResponse> {
+  const files = await saveFixtureFiles();
+  return createInitSession(files);
 }
 
 async function handleBlock(req: Request): Promise<NextResponse> {
@@ -249,6 +313,9 @@ export async function POST(req: Request): Promise<NextResponse> {
     }
     if (action === 'session') {
       return await handleSession(req);
+    }
+    if (action === 'init-example') {
+      return await handleInitExample();
     }
 
     let uploadDirPath: string | null = null;
