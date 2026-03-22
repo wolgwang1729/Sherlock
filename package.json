@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SummerOfBitcoin/sherlock-bitcoin-analyzer.git"
+    "url": "git+https://github.com/wolgwang1729/Sherlock.git"
   },
   "keywords": [
     "bitcoin",
@@ -23,9 +23,9 @@
   "author": "wolgwang1729",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/SummerOfBitcoin/sherlock-bitcoin-analyzer/issues"
+    "url": "https://github.com/wolgwang1729/Sherlock/issues"
   },
-  "homepage": "https://github.com/SummerOfBitcoin/sherlock-bitcoin-analyzer#readme",
+  "homepage": "https://sherlock-bitcoin.vercel.app/",
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.1",
     "@types/node": "^25.4.0",
