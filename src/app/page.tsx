@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import BlockVisualizer from '../components/BlockVisualizer';
 import { ArrowRight, ScanSearch, Loader2 } from 'lucide-react';
@@ -177,7 +177,7 @@ export function DashboardSkeleton() {
   );
 }
 
-export default function Home() {
+function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionFromUrl = searchParams.get('session');
@@ -483,5 +483,13 @@ export default function Home() {
 
       </div>
     </main>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <HomeContent />
+    </Suspense>
   );
 }
