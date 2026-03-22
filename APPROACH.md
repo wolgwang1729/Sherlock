@@ -491,9 +491,9 @@ Round amounts are common in normal user payments, but they also appear in exchan
 
 ## Architecture Overview
 
-The codebase is primarily TypeScript. The chain-analysis pipeline runs in a Node.js environment and uses `bitcoinjs-lib` for block and transaction primitives. The repository also contains a Next.js app for visualization and API endpoints, but the graded chain-analysis deliverable is produced by the CLI pipeline.
+The codebase is primarily TypeScript. The chain-analysis pipeline runs in a Node.js environment and uses `bitcoinjs-lib` for block and transaction primitives. The user-facing surface is a Next.js website that accepts uploaded blk/rev/xor data, drives analysis through API routes, and renders interactive block and transaction visualizations.
 
-At the entry point, `src/cli.ts` expects `--block <blk.dat> <rev.dat> <xor.dat>`, validates the files, and writes two artifacts into `out/`: a JSON report and a Markdown report. The CLI calls `analyzeBlock`, which is exported through `src/analyzer.ts` and implemented in `src/lib/block.ts`.
+At the application boundary, `src/app/api/analyze-block/route.ts` handles file upload, session lifecycle, and per-block analysis requests. It orchestrates parsing and analysis by calling `parseBlockSummaries` and `analyzeSingleBlock` from `src/analyzer.ts`.
 
 Inside `src/lib/block.ts`, the pipeline first decodes obfuscated blk/rev records using the XOR key, parses raw block payloads, verifies transaction roots, and matches each block to the correct undo record. For non-coinbase transactions, undo data is used to reconstruct prevouts so the analyzer can recover input values, scriptPubKeys, and addresses without querying a full node.
 
@@ -569,15 +569,15 @@ To verify the accuracy of the implemented heuristics against real-world data, se
 
 ## Trade-offs and Design Decisions
 
-The main design choice was to prefer explicit, explainable heuristics over opaque clustering or machine-learned inference. That makes the output easier to justify in a challenge setting, and it keeps runtime low enough to process raw block data directly from local files. The trade-off is accuracy: the system can surface plausible patterns quickly, but it does not claim wallet-level truth.
+The main design choice was to prefer explicit, explainable heuristics over opaque clustering or machine-learned inference. That makes the output easier to justify in this project setting, and it keeps runtime low enough to process raw block data directly from local files. The trade-off is accuracy: the system can surface plausible patterns quickly, but it does not claim wallet-level truth.
 
 Another intentional trade-off is block-local context instead of chain-wide history. `buildBlockContext` only tracks addresses and spends visible in the currently parsed block set. This is fast, memory-efficient, and self-contained, but it weakens reuse and peeling-chain detection whenever relevant history or future spends fall outside the current sample.
 
 Change detection is implemented as a small additive scorer rather than a large wallet-fingerprinting system. That keeps the logic understandable and easy to debug, but it also means the score thresholds are heuristic thresholds, not calibrated probabilities. For the same reason, the confidence labels throughout the system should be read as relative implementation confidence, not measured precision or recall.
 
-Several numeric cutoffs in the implementation are intentionally simple and transparent. These values are heuristic tuning parameters chosen to balance sensitivity (catching real patterns) and specificity (avoiding false positives) within the scope of this challenge, rather than being empirically tuned operating points over labeled ground-truth data.
+Several numeric cutoffs in the implementation are intentionally simple and transparent. These values are heuristic tuning parameters chosen to balance sensitivity (catching real patterns) and specificity (avoiding false positives) within the scope of this project, rather than being empirically tuned operating points over labeled ground-truth data.
 
-The challenge environment does not provide a reproducible labeled benchmark set for all targeted behaviors, so confidence labels remain rule-based implementation confidence rather than calibrated probabilities. To partially compensate, the project uses deterministic unit/integration fixtures and explicit cross-heuristic guard rails (for example, CoinJoin suppression paths, PayJoin-aware CIOH suppression, and ambiguity handling in change scoring) to reduce obvious failure modes.
+The current environment does not provide a reproducible labeled benchmark set for all targeted behaviors, so confidence labels remain rule-based implementation confidence rather than calibrated probabilities. To partially compensate, the project uses deterministic unit/integration fixtures and explicit cross-heuristic guard rails (for example, CoinJoin suppression paths, PayJoin-aware CIOH suppression, and ambiguity handling in change scoring) to reduce obvious failure modes.
 
 ## Additional Blind Spots and Docking Risks
 

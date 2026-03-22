@@ -1,21 +1,19 @@
 {
-  "name": "2026-developer-challenge-3-sherlock-wolgwang1729",
+  "name": "sherlock-bitcoin-analyzer",
   "version": "1.0.0",
   "private": true,
-  "description": "Week 3 Challenge: Sherlock Bitcoin chain analysis CLI and web visualizer.",
+  "description": "Sherlock Bitcoin Analyzer web application for Bitcoin block chain analysis.",
   "scripts": {
     "dev": "next dev",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
     "test:ui": "vitest --ui",
-    "cli": "tsx src/cli.ts",
-    "analyze:block": "tsx src/cli.ts --block",
     "typecheck": "tsc --noEmit"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SummerOfBitcoin/2026-developer-challenge-3-sherlock-wolgwang1729.git"
+    "url": "git+https://github.com/SummerOfBitcoin/sherlock-bitcoin-analyzer.git"
   },
   "keywords": [
     "bitcoin",
@@ -25,19 +23,18 @@
   "author": "wolgwang1729",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/SummerOfBitcoin/2026-developer-challenge-3-sherlock-wolgwang1729/issues"
+    "url": "https://github.com/SummerOfBitcoin/sherlock-bitcoin-analyzer/issues"
   },
-  "homepage": "https://github.com/SummerOfBitcoin/2026-developer-challenge-3-sherlock-wolgwang1729#readme",
+  "homepage": "https://github.com/SummerOfBitcoin/sherlock-bitcoin-analyzer#readme",
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.0.18",
-    "@vitest/ui": "^4.0.18",
     "@tailwindcss/postcss": "^4.2.1",
     "@types/node": "^25.4.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@vitest/coverage-v8": "^4.0.18",
+    "@vitest/ui": "^4.0.18",
     "postcss": "^8.5.8",
     "tailwindcss": "^4.2.1",
-    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
   },

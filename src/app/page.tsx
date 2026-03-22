@@ -7,7 +7,7 @@ import { ArrowRight, ScanSearch, Loader2 } from 'lucide-react';
 import { ChainAnalysisFileReport } from '../types';
 
 const isDatFile = (file: File) => /\.dat$/i.test(file.name);
-const INITIAL_FORM_LOADING_MS = 1200;
+const INITIAL_FORM_LOADING_MS = 2000;
 
 const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
@@ -330,13 +330,14 @@ export default function Home() {
   }, [blkFile, revFile, xorFile, cleanupSession, setSessionInUrl]);
 
   const handleAnalyzeAnother = useCallback(async () => {
+    restoredSessionRef.current = sessionFromUrl;
+    setSessionInUrl(null);
     await cleanupSession();
     setResult(null);
-    setSessionInUrl(null);
     setError(null);
     setInitializingDashboard(false);
     setLoadingBlockIndex(null);
-  }, [cleanupSession, setSessionInUrl]);
+  }, [cleanupSession, sessionFromUrl, setSessionInUrl]);
 
   useEffect(() => {
     if (!sessionFromUrl || restoredSessionRef.current === sessionFromUrl || sessionId || result || loading) {
