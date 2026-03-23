@@ -131,7 +131,7 @@ function GraphNode({
 function TransactionFlowGraph({ tx }: { tx: TransactionChainAnalysis }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [availableWidth, setAvailableWidth] = useState(0);
-  const [showFlow, setShowFlow] = useState(true);
+  const [showFlow, setShowFlow] = useState(false);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -578,15 +578,7 @@ export default function TransactionVisualizer({ tx }: { tx: TransactionChainAnal
                     </div>
                   </div>
 
-                  {!detected && (
-                    <div className="flex-1 relative overflow-hidden pointer-events-none min-h-0">
-                      <div className="absolute inset-0 flex items-center justify-center opacity-[0.03]">
-                        <ShieldCheck className="size-24" />
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex flex-col gap-1 mt-auto shrink-0">
+                  <div className="flex flex-col gap-1 shrink-0 flex-1 min-h-0">
                     <dl className="space-y-2 text-sm">
                       <div>
                         <dt className="text-zinc-500 text-[11px] uppercase tracking-wider font-semibold mb-0.5">Status:</dt>
@@ -599,34 +591,46 @@ export default function TransactionVisualizer({ tx }: { tx: TransactionChainAnal
                           <dd className="text-zinc-300 font-medium capitalize">{confidence}</dd>
                         </div>
                       )}
-
-                      {/* Extra Data Render */}
-                      {detected && Object.keys(result).map((key) => {
-                        if (key === 'detected' || key === 'confidence') return null;
-                        const val = (result as any)[key];
-
-                        // Hide empty values for a cleaner UI, but preserve 0 (valid index) and booleans
-                        if ((Array.isArray(val) && val.length === 0) || val === null || val === undefined) {
-                          return null;
-                        }
-
-                        let displayVal = val;
-                        if (typeof val === 'boolean') {
-                          displayVal = val ? 'Yes' : 'No';
-                        } else if (typeof val === 'object') {
-                          displayVal = Array.isArray(val) ? val.join(', ') : JSON.stringify(val);
-                        }
-
-                        return (
-                          <div key={key} className="flex flex-col gap-1 pt-2 border-t border-zinc-800/50 mt-2">
-                            <span className="text-[11px] text-zinc-500 uppercase tracking-widest font-semibold">{key.replace(/_/g, ' ')}</span>
-                            <span className="text-zinc-300 font-mono text-[11px] break-all leading-relaxed bg-black/50 p-2 rounded-lg border border-zinc-800/40">
-                              {displayVal}
-                            </span>
-                          </div>
-                        );
-                      })}
                     </dl>
+
+                    {!detected && (
+                      <div className="mt-auto flex-1 min-h-0 relative overflow-hidden pointer-events-none">
+                        <div className="absolute inset-0 flex items-center justify-center opacity-[0.03]">
+                          <ShieldCheck className="size-24" />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Extra Data Render */}
+                    {detected && (
+                      <div className="mt-auto">
+                        {Object.keys(result).map((key) => {
+                          if (key === 'detected' || key === 'confidence') return null;
+                          const val = (result as any)[key];
+
+                          // Hide empty values for a cleaner UI, but preserve 0 (valid index) and booleans
+                          if ((Array.isArray(val) && val.length === 0) || val === null || val === undefined) {
+                            return null;
+                          }
+
+                          let displayVal = val;
+                          if (typeof val === 'boolean') {
+                            displayVal = val ? 'Yes' : 'No';
+                          } else if (typeof val === 'object') {
+                            displayVal = Array.isArray(val) ? val.join(', ') : JSON.stringify(val);
+                          }
+
+                          return (
+                            <div key={key} className="flex flex-col gap-1 pt-2 border-t border-zinc-800/50 mt-2">
+                              <span className="text-[11px] text-zinc-500 uppercase tracking-widest font-semibold">{key.replace(/_/g, ' ')}</span>
+                              <span className="text-zinc-300 font-mono text-[11px] break-all leading-relaxed bg-black/50 p-2 rounded-lg border border-zinc-800/40">
+                                {displayVal}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
               )
