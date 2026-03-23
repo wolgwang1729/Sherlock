@@ -244,11 +244,11 @@ export default function BlockVisualizer({
   const diversityScore = maxEntropy > 0 ? Math.round((entropy / maxEntropy) * 100) : 0;
 
   return (
-    <div className="flex flex-col bg-background-dark text-slate-100 rounded-3xl overflow-hidden border border-border-subtle shadow-2xl h-[85vh] w-full">
+    <div className="flex flex-col bg-background-dark text-slate-100 rounded-3xl overflow-hidden border border-border-subtle shadow-2xl w-full h-auto md:h-[85vh]">
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden flex-col lg:flex-row">
         {/* Sidebar Navigation */}
-        <aside className="w-72 border-r border-border-subtle flex flex-col bg-background-dark overflow-hidden shrink-0">
+        <aside className="w-full lg:w-72 border-b lg:border-b-0 lg:border-r border-border-subtle flex flex-col bg-background-dark overflow-hidden shrink-0 max-h-72 lg:max-h-none">
           <div className="p-5 border-b border-border-subtle">
             <div className="flex items-center justify-between mb-4">
               <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 truncate max-w-35" title={report.file}>Source: {report.file}</span>
@@ -297,15 +297,15 @@ export default function BlockVisualizer({
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto bg-background-dark p-8 relative">
+        <main className="flex-1 overflow-y-auto bg-background-dark p-4 sm:p-6 lg:p-8 relative">
           {/* Header Section */}
           <div className="flex flex-wrap items-center justify-between gap-6 mb-10">
             <div>
-              <h1 className="text-4xl font-black tracking-tight text-white">Block #{formatStats(selectedBlock.block_height)}</h1>
+              <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white">Block #{formatStats(selectedBlock.block_height)}</h1>
             </div>
-            <div className="flex gap-3">
-              <div className="px-4 py-2 bg-surface-dark border border-border-subtle rounded-xl flex items-center gap-2 h-fit">
-                <span className="text-slate-400 font-mono text-sm">{selectedBlock.block_hash.substring(0, 10)}...{selectedBlock.block_hash.slice(-10)}</span>
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <div className="px-4 py-2 bg-surface-dark border border-border-subtle rounded-xl flex items-center gap-2 h-fit min-w-0 max-w-full">
+                <span className="text-slate-400 font-mono text-sm truncate max-w-[12rem] sm:max-w-[20rem]">{selectedBlock.block_hash.substring(0, 10)}...{selectedBlock.block_hash.slice(-10)}</span>
                 <button className="text-slate-500 hover:text-primary transition-colors cursor-pointer flex items-center" onClick={() => navigator.clipboard.writeText(selectedBlock.block_hash)} title="Copy hash">
                   <Copy className="size-4" />
                 </button>
@@ -314,7 +314,7 @@ export default function BlockVisualizer({
                 href={`https://mempool.space/block/${selectedBlock.block_hash}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 bg-surface-dark border border-border-subtle rounded-xl flex items-center gap-2 hover:border-primary/50 text-slate-400 hover:text-primary transition-all text-sm font-semibold h-fit"
+                className="px-4 py-2 bg-surface-dark border border-border-subtle rounded-xl flex items-center justify-center gap-2 hover:border-primary/50 text-slate-400 hover:text-primary transition-all text-sm font-semibold h-fit"
               >
                 <ExternalLink className="size-4" />
                 <span>Mempool</span>
@@ -403,9 +403,9 @@ export default function BlockVisualizer({
 
           {/* Visualization Section */}
           <div className="sherlock-card rounded-2xl p-6 mb-10">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
               <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500">Script Distribution Analysis</h3>
-              <div className="flex flex-wrap gap-4">
+              <div className="hidden md:flex flex-wrap gap-4">
                 <div className="flex items-center gap-1.5">
                   <div className="size-2.5 rounded-full bg-primary shadow-[0_0_8px_rgba(59,73,255,0.4)]"></div>
                   <span className="text-[10px] font-bold text-slate-300">P2WPKH</span>
@@ -511,7 +511,7 @@ export default function BlockVisualizer({
                     setVisibleTxCount(50);
                     setExpandedTxId(null);
                   }}
-                  className="bg-surface-dark border border-border-subtle rounded-lg px-3 py-2 text-sm text-slate-200"
+                  className="bg-surface-dark border border-border-subtle rounded-lg px-3 py-2 text-sm text-slate-200 w-full md:w-auto"
                 >
                   {CLASSIFICATION_FILTERS.map((option) => (
                     <option key={option.value} value={option.value}>{option.label}</option>
@@ -526,7 +526,7 @@ export default function BlockVisualizer({
                     setVisibleTxCount(50);
                     setExpandedTxId(null);
                   }}
-                  className="bg-surface-dark border border-border-subtle rounded-lg px-3 py-2 text-sm text-slate-200"
+                  className="bg-surface-dark border border-border-subtle rounded-lg px-3 py-2 text-sm text-slate-200 w-full md:w-auto"
                 >
                   {HEURISTIC_FILTERS.map((option) => (
                     <option key={option.value} value={option.value}>{option.label}</option>
@@ -716,7 +716,7 @@ const TransactionItem = memo(({ tx, isExpanded, onToggle }: { tx: TransactionCha
           </div>
           <div className="flex-1 min-w-0 w-full">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <p className="text-sm font-bold font-mono text-white truncate max-w-50 sm:max-w-md">{tx.txid}</p>
+              <p className="text-sm font-bold font-mono text-white truncate max-w-[12rem] sm:max-w-md">{tx.txid}</p>
               <div className="flex items-center gap-2">
                 {riskLevel && (
                   <span className={`${riskLevel === 'High Risk' ? 'bg-red-500 text-white' : 'bg-orange-500/20 text-orange-400'} text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider whitespace-nowrap`}>

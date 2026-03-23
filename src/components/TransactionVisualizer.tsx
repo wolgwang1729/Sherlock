@@ -129,6 +129,7 @@ function GraphNode({
 function TransactionFlowGraph({ tx }: { tx: TransactionChainAnalysis }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [availableWidth, setAvailableWidth] = useState(0);
+  const [showFlow, setShowFlow] = useState(true);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -180,41 +181,57 @@ function TransactionFlowGraph({ tx }: { tx: TransactionChainAnalysis }) {
 
   return (
     <div className="bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 rounded-3xl shadow-2xl relative p-5">
-      <div className="flex flex-wrap items-start justify-between gap-4 mb-5">
-        <div>
-          <h3 className="text-xl font-bold text-white">Visual Transaction Flow</h3>
-          <p className="text-sm text-zinc-400 mt-1">Inputs converge into the transaction and fan out into spend targets.</p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm min-w-full sm:min-w-0 sm:w-auto">
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
-            <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">Inputs</p>
-            <p className="text-lg font-bold text-white mt-1">{inputs.length}</p>
-            <p className="text-xs text-zinc-400">{formatSats(graph.total_input_sats)} sats in</p>
-          </div>
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
-            <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">Outputs</p>
-            <p className="text-lg font-bold text-white mt-1">{outputs.length}</p>
-            <p className="text-xs text-zinc-400">{formatSats(graph.total_output_sats)} sats out</p>
-          </div>
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
-            <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">Fee</p>
-            <p className="text-lg font-bold text-white mt-1">{formatSats(graph.fee_sats)} sats</p>
-            <p className="text-xs text-zinc-400">{txFeeShare.toFixed(2)}% of total input value</p>
-          </div>
-        </div>
-      </div>
+      <button
+        type="button"
+        onClick={() => setShowFlow(!showFlow)}
+        className="w-full text-left flex items-center justify-between gap-3 cursor-pointer"
+        aria-expanded={showFlow}
+        aria-label="Toggle visual transaction flow"
+      >
+        <h3 className="text-xl font-bold text-white">Visual Transaction Flow</h3>
+        {showFlow ? (
+          <ChevronUp className="w-5 h-5 text-zinc-400" />
+        ) : (
+          <ChevronDown className="w-5 h-5 text-zinc-400" />
+        )}
+      </button>
 
-      <div ref={containerRef} className="w-full overflow-hidden pb-2">
-        <div className="relative w-full" style={{ height: `${scaledHeight}px` }}>
-          <div
-            className="absolute left-0 top-0 origin-top-left"
-            style={{
-              width: `${canvasWidth}px`,
-              height: `${graphHeight}px`,
-              left: `${canvasOffsetX}px`,
-              transform: `scale(${graphScale})`,
-            }}
-          >
+      {showFlow && (
+        <>
+          <div className="flex flex-wrap items-start justify-between gap-4 mb-5 mt-4">
+            <div>
+              <p className="text-sm text-zinc-400 mt-1">Inputs converge into the transaction and fan out into spend targets.</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm min-w-full sm:min-w-0 sm:w-auto">
+              <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
+                <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">Inputs</p>
+                <p className="text-lg font-bold text-white mt-1">{inputs.length}</p>
+                <p className="text-xs text-zinc-400">{formatSats(graph.total_input_sats)} sats in</p>
+              </div>
+              <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
+                <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">Outputs</p>
+                <p className="text-lg font-bold text-white mt-1">{outputs.length}</p>
+                <p className="text-xs text-zinc-400">{formatSats(graph.total_output_sats)} sats out</p>
+              </div>
+              <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
+                <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">Fee</p>
+                <p className="text-lg font-bold text-white mt-1">{formatSats(graph.fee_sats)} sats</p>
+                <p className="text-xs text-zinc-400">{txFeeShare.toFixed(2)}% of total input value</p>
+              </div>
+            </div>
+          </div>
+
+          <div ref={containerRef} className="w-full overflow-hidden pb-2">
+            <div className="relative w-full" style={{ height: `${scaledHeight}px` }}>
+              <div
+                className="absolute left-0 top-0 origin-top-left"
+                style={{
+                  width: `${canvasWidth}px`,
+                  height: `${graphHeight}px`,
+                  left: `${canvasOffsetX}px`,
+                  transform: `scale(${graphScale})`,
+                }}
+              >
           <svg className="absolute inset-0 h-full w-full" viewBox={`0 0 ${canvasWidth} ${graphHeight}`} fill="none" aria-hidden="true">
             <defs>
               <linearGradient id="inputFlow" x1="0" y1="0" x2="1" y2="0">
@@ -335,9 +352,11 @@ function TransactionFlowGraph({ tx }: { tx: TransactionChainAnalysis }) {
               </div>
             );
           })}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 }
@@ -381,7 +400,8 @@ function Tooltip({ children, tip, className = "inline-flex items-center gap-0.5"
 
 export default function TransactionVisualizer({ tx }: { tx: TransactionChainAnalysis }) {
   const [showRaw, setShowRaw] = useState(false);
-  const [showHeuristics, setShowHeuristics] = useState(true);
+  const [showHeuristics, setShowHeuristics] = useState(false);
+  const [showMetadata, setShowMetadata] = useState(false);
   const warnings = tx.warnings ?? [];
   const opReturnDetails = tx.op_return_details ?? [];
 
@@ -399,8 +419,23 @@ export default function TransactionVisualizer({ tx }: { tx: TransactionChainAnal
       <TransactionFlowGraph tx={tx} />
 
       <div className="bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 rounded-3xl shadow-2xl relative p-5 mt-6">
-        <h3 className="text-xl font-bold text-white mb-5">Transaction Metadata</h3>
+        <button
+          type="button"
+          onClick={() => setShowMetadata(!showMetadata)}
+          className="w-full text-left flex items-center justify-between gap-3 mb-5 cursor-pointer"
+          aria-expanded={showMetadata}
+          aria-label="Toggle transaction metadata"
+        >
+          <h3 className="text-xl font-bold text-white">Transaction Metadata</h3>
+          {showMetadata ? (
+            <ChevronUp className="w-5 h-5 text-zinc-400" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-zinc-400" />
+          )}
+        </button>
 
+        {showMetadata && (
+          <>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
             <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">TXID</p>
@@ -472,20 +507,22 @@ export default function TransactionVisualizer({ tx }: { tx: TransactionChainAnal
           </div>
         </div>
 
-        {warnings.length > 0 && (
-          <div className="mt-4 pt-4 border-t border-zinc-800">
-            <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500 mb-2">Warnings</p>
-            <div className="flex flex-wrap gap-2">
-              {warnings.map((warning) => (
-                <span
-                  key={`${warning.code}-${warning.severity}`}
-                  className={`text-[10px] uppercase tracking-wider px-2 py-1 rounded-full border font-semibold ${warningTone(warning.severity)}`}
-                >
-                  {formatWarningLabel(warning.code)}
-                </span>
-              ))}
+          {warnings.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-zinc-800">
+              <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500 mb-2">Warnings</p>
+              <div className="flex flex-wrap gap-2">
+                {warnings.map((warning) => (
+                  <span
+                    key={`${warning.code}-${warning.severity}`}
+                    className={`text-[10px] uppercase tracking-wider px-2 py-1 rounded-full border font-semibold ${warningTone(warning.severity)}`}
+                  >
+                    {formatWarningLabel(warning.code)}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
+          </>
         )}
       </div>
 
