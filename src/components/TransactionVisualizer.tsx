@@ -1,7 +1,5 @@
 "use client";
 
-"use client";
-
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp, Copy, Check, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react';
 import { TransactionChainAnalysis, HeuristicResult, OutputScriptType, UiWarning } from '../types';
@@ -424,7 +422,7 @@ export default function TransactionVisualizer({ tx }: { tx: TransactionChainAnal
         <button
           type="button"
           onClick={() => setShowMetadata(!showMetadata)}
-          className="w-full text-left flex items-center justify-between gap-3 mb-5 cursor-pointer"
+          className={`w-full text-left flex items-center justify-between gap-3 cursor-pointer ${showMetadata ? 'mb-5' : ''}`}
           aria-expanded={showMetadata}
           aria-label="Toggle transaction metadata"
         >
@@ -533,7 +531,7 @@ export default function TransactionVisualizer({ tx }: { tx: TransactionChainAnal
         <button
           type="button"
           onClick={() => setShowHeuristics(!showHeuristics)}
-          className="w-full text-left flex items-center justify-between gap-3 mb-6 cursor-pointer"
+          className={`w-full text-left flex items-center justify-between gap-3 cursor-pointer ${showHeuristics ? 'mb-6' : ''}`}
           aria-expanded={showHeuristics}
           aria-label="Toggle heuristic analysis results"
         >
@@ -621,9 +619,9 @@ export default function TransactionVisualizer({ tx }: { tx: TransactionChainAnal
                           }
 
                           return (
-                            <div key={key} className="flex flex-col gap-1 pt-2 border-t border-zinc-800/50 mt-2">
+                            <div key={key} className="flex flex-col gap-0.5 pt-1 border-t border-zinc-800/50 mt-1">
                               <span className="text-[11px] text-zinc-500 uppercase tracking-widest font-semibold">{key.replace(/_/g, ' ')}</span>
-                              <span className="text-zinc-300 font-mono text-[11px] break-all leading-relaxed bg-black/50 p-2 rounded-lg border border-zinc-800/40">
+                              <span className="text-zinc-300 font-mono text-[11px] break-all leading-relaxed bg-black/50 px-2 py-1 rounded-lg border border-zinc-800/40">
                                 {displayVal}
                               </span>
                             </div>

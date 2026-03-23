@@ -305,7 +305,7 @@ export default function BlockVisualizer({
             </div>
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <div className="px-4 py-2 bg-surface-dark border border-border-subtle rounded-xl flex items-center gap-2 h-fit min-w-0 max-w-full">
-                <span className="text-slate-400 font-mono text-sm truncate max-w-[12rem] sm:max-w-[20rem]">{selectedBlock.block_hash.substring(0, 10)}...{selectedBlock.block_hash.slice(-10)}</span>
+                <span className="text-slate-400 font-mono text-sm truncate max-w-48 sm:max-w-[20rem]">{selectedBlock.block_hash.substring(0, 10)}...{selectedBlock.block_hash.slice(-10)}</span>
                 <button className="text-slate-500 hover:text-primary transition-colors cursor-pointer flex items-center" onClick={() => navigator.clipboard.writeText(selectedBlock.block_hash)} title="Copy hash">
                   <Copy className="size-4" />
                 </button>
@@ -716,7 +716,7 @@ const TransactionItem = memo(({ tx, isExpanded, onToggle }: { tx: TransactionCha
           </div>
           <div className="flex-1 min-w-0 w-full">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <p className="text-sm font-bold font-mono text-white truncate max-w-[12rem] sm:max-w-md">{tx.txid}</p>
+              <p className="text-sm font-bold font-mono text-white truncate max-w-48 sm:max-w-md">{tx.txid}</p>
               <div className="flex items-center gap-2">
                 {riskLevel && (
                   <span className={`${riskLevel === 'High Risk' ? 'bg-red-500 text-white' : 'bg-orange-500/20 text-orange-400'} text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider whitespace-nowrap`}>
