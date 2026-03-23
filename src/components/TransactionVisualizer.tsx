@@ -1,5 +1,7 @@
 "use client";
 
+"use client";
+
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp, Copy, Check, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react';
 import { TransactionChainAnalysis, HeuristicResult, OutputScriptType, UiWarning } from '../types';
@@ -598,7 +600,32 @@ export default function TransactionVisualizer({ tx }: { tx: TransactionChainAnal
                         </div>
                       )}
 
-                      {/* compact mode: do not render extra heuristic fields */}
+                      {/* Extra Data Render */}
+                      {detected && Object.keys(result).map((key) => {
+                        if (key === 'detected' || key === 'confidence') return null;
+                        const val = (result as any)[key];
+
+                        // Hide empty values for a cleaner UI, but preserve 0 (valid index) and booleans
+                        if ((Array.isArray(val) && val.length === 0) || val === null || val === undefined) {
+                          return null;
+                        }
+
+                        let displayVal = val;
+                        if (typeof val === 'boolean') {
+                          displayVal = val ? 'Yes' : 'No';
+                        } else if (typeof val === 'object') {
+                          displayVal = Array.isArray(val) ? val.join(', ') : JSON.stringify(val);
+                        }
+
+                        return (
+                          <div key={key} className="flex flex-col gap-1 pt-2 border-t border-zinc-800/50 mt-2">
+                            <span className="text-[11px] text-zinc-500 uppercase tracking-widest font-semibold">{key.replace(/_/g, ' ')}</span>
+                            <span className="text-zinc-300 font-mono text-[11px] break-all leading-relaxed bg-black/50 p-2 rounded-lg border border-zinc-800/40">
+                              {displayVal}
+                            </span>
+                          </div>
+                        );
+                      })}
                     </dl>
                   </div>
                 </div>
