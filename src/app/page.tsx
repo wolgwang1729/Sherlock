@@ -15,18 +15,18 @@ export function DashboardSkeleton() {
   return (
     <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
       {/* Top Navigation / Brand */}
-      <div className="flex justify-between items-center">
-        <button className="text-sm font-medium text-zinc-400 flex items-center gap-2 px-4 py-2 rounded-full border border-zinc-800 cursor-not-allowed opacity-50">
+      <div className="flex justify-between items-center gap-3">
+        <button className="text-xs sm:text-sm font-medium text-zinc-400 flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full border border-zinc-800 cursor-not-allowed opacity-50 whitespace-nowrap shrink-0">
           &larr; Analyze another
         </button>
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-linear-to-br from-white to-zinc-500 tracking-tight">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-linear-to-br from-white to-zinc-500 tracking-tight">
             Sherlock
           </h1>
           <img
             src="/logo.png"
             alt="Sherlock logo"
-            className="w-10 h-10 md:w-12 md:h-12 rounded-full ring-1 ring-white/15"
+            className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full ring-1 ring-white/15"
           />
         </div>
       </div>
@@ -509,18 +509,18 @@ function HomeContent() {
         {/* Results */}
         {result && (
           <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
-            <div className="flex justify-between items-center">
-              <button onClick={handleAnalyzeAnother} className="cursor-pointer text-sm font-medium text-zinc-400 hover:text-white flex items-center gap-2 transition-all px-4 py-2 rounded-full border border-zinc-800 hover:border-zinc-600 hover:bg-zinc-800/50 backdrop-blur-sm">
+            <div className="flex justify-between items-center gap-3">
+              <button onClick={handleAnalyzeAnother} className="cursor-pointer text-xs sm:text-sm font-medium text-zinc-400 hover:text-white flex items-center gap-2 transition-all px-3 sm:px-4 py-2 rounded-full border border-zinc-800 hover:border-zinc-600 hover:bg-zinc-800/50 backdrop-blur-sm whitespace-nowrap shrink-0">
                 &larr; Analyze another
               </button>
-              <div className="flex items-center gap-3">
-                <h1 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-linear-to-br from-white to-zinc-500 tracking-tight">
+              <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-linear-to-br from-white to-zinc-500 tracking-tight">
                   Sherlock
                 </h1>
                 <img
                   src="/logo.png"
                   alt="Sherlock logo"
-                  className="w-10 h-10 md:w-12 md:h-12 rounded-full ring-1 ring-white/15"
+                  className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full ring-1 ring-white/15"
                 />
               </div>
             </div>
