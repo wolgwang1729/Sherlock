@@ -186,6 +186,7 @@ function HomeContent() {
   const [xorFile, setXorFile] = useState<File | null>(null);
 
   const [loading, setLoading] = useState(false);
+  const [loadingAction, setLoadingAction] = useState<'analyze' | 'example' | null>(null);
   const [initializingDashboard, setInitializingDashboard] = useState(Boolean(sessionFromUrl));
   const [loadingBlockIndex, setLoadingBlockIndex] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -284,6 +285,7 @@ function HomeContent() {
       if (xorFile && !isDatFile(xorFile)) {
         throw new Error('Only .dat files are supported.');
       }
+      setLoadingAction('analyze');
       setLoading(true);
       setError(null);
       const shouldShowInitializingDashboard = !options?.preserveExisting;
@@ -326,6 +328,7 @@ function HomeContent() {
     } finally {
       setInitializingDashboard(false);
       setLoading(false);
+      setLoadingAction(null);
     }
   }, [blkFile, revFile, xorFile, cleanupSession, setSessionInUrl]);
 
@@ -341,6 +344,7 @@ function HomeContent() {
 
   const handleLoadExampleData = useCallback(async () => {
     try {
+      setLoadingAction('example');
       setLoading(true);
       setError(null);
       await cleanupSession();
@@ -374,6 +378,7 @@ function HomeContent() {
     } finally {
       setInitializingDashboard(false);
       setLoading(false);
+      setLoadingAction(null);
     }
   }, [cleanupSession, setSessionInUrl]);
 
@@ -475,14 +480,14 @@ function HomeContent() {
                     title={loading ? "Analyzing..." : ((blkFile && !isDatFile(blkFile)) || (revFile && !isDatFile(revFile)) || (xorFile && !isDatFile(xorFile))) ? "Only .dat files are supported." : undefined}
                     className="cursor-pointer w-full mt-4 py-4 rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 text-white font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-[0.99] shadow-lg shadow-blue-900/20"
                   >
-                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><ArrowRight className="w-5 h-5" /> Analyze Block Data</>}
+                    {loadingAction === 'analyze' ? <Loader2 className="w-5 h-5 animate-spin" /> : <><ArrowRight className="w-5 h-5" /> Analyze Block Data</>}
                   </button>
                   <button
                     onClick={handleLoadExampleData}
                     disabled={loading}
                     className="cursor-pointer w-full py-3 rounded-xl border border-zinc-700 text-zinc-200 font-semibold flex items-center justify-center gap-2 hover:bg-zinc-800/60 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><FolderOpen className="w-5 h-5" /> Use Example .dat Files</>}
+                    {loadingAction === 'example' ? <Loader2 className="w-5 h-5 animate-spin" /> : <><FolderOpen className="w-5 h-5" /> Use Example .dat Files</>}
                   </button>
                   <p className="text-xs text-zinc-500 text-left">
                     Don’t have .dat files? Load a sample from the fixtures folder.
