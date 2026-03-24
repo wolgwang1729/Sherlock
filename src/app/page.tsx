@@ -423,7 +423,7 @@ function HomeContent() {
       <div className={`w-full max-w-7xl mx-auto flex flex-col ${!result ? 'min-h-[80vh] justify-center' : ''}`}>
 
         {!result && !initializingDashboard && !sessionFromUrl && (
-          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-center gap-10 xl:gap-16 w-full">
+          <div className="flex flex-col-reverse lg:flex-row items-stretch lg:items-center justify-center gap-10 xl:gap-16 w-full">
 
             {/* Left side: Premium Image Presentation */}
             <div className="flex-1 w-full lg:w-1/2 flex items-center justify-center p-4 animate-in fade-in slide-in-from-left-8 duration-700">
