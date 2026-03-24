@@ -44,6 +44,24 @@ const TransactionListLoader = ({ rows = 4 }: { rows?: number }) => (
   </div>
 );
 
+const FeeRateDistributionLoader = () => (
+  <div className="sherlock-card rounded-2xl p-6 max-sm:p-3 mb-8 max-sm:mb-4 border border-border-subtle" aria-label="Loading fee distribution">
+    <div className="flex items-center justify-between mb-4 max-sm:mb-2">
+      <div className="h-3 w-32 bg-white/10 rounded animate-pulse" />
+      <div className="h-3 w-20 bg-white/10 rounded animate-pulse" />
+    </div>
+    <div className="grid grid-cols-2 max-sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-3 max-sm:gap-2">
+      {Array.from({ length: 6 }).map((_, index) => (
+        <div key={index} className="bg-white/2 border border-border-subtle rounded-xl p-3 max-sm:p-2 space-y-2 max-sm:space-y-1">
+          <div className="h-2 w-10 bg-white/10 rounded animate-pulse mb-2 max-sm:mb-1" />
+          <div className="h-14 max-sm:h-10 bg-white/5 rounded-md animate-pulse" />
+          <div className="h-4 w-8 bg-white/10 rounded animate-pulse mt-2 max-sm:mt-1" />
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 const CLASSIFICATION_FILTERS: Array<{ value: 'all' | Classification; label: string }> = [
   { value: 'all', label: 'All classifications' },
   { value: 'coinjoin', label: 'CoinJoin' },
@@ -483,7 +501,11 @@ export default function BlockVisualizer({
             )}
           </div>
 
-          {!isSelectedBlockLoading && <FeeRateDistribution feeRates={txFeeRates} />}
+        {!isSelectedBlockLoading ? (
+            <FeeRateDistribution feeRates={txFeeRates} />
+          ) : (
+            <FeeRateDistributionLoader />
+          )}
 
           {/* Transaction Explorer */}
           <div className="flex flex-col gap-5">

@@ -31,11 +31,11 @@ export function DashboardSkeleton() {
         </div>
       </div>
 
-      <div className="flex flex-col bg-background-dark text-slate-100 rounded-3xl overflow-hidden border border-border-subtle shadow-2xl h-[85vh] w-full">
-        <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-col bg-background-dark text-slate-100 rounded-3xl overflow-hidden border border-border-subtle shadow-2xl h-auto md:h-[85vh] w-full">
+        <div className="flex flex-1 overflow-hidden flex-col lg:flex-row">
 
           {/* SIDEBAR SKELETON */}
-          <aside className="w-72 border-r border-border-subtle flex flex-col bg-background-dark overflow-hidden shrink-0">
+          <aside className="w-full lg:w-72 border-b lg:border-b-0 lg:border-r border-border-subtle flex flex-col bg-background-dark overflow-hidden shrink-0 max-h-72 max-sm:max-h-48 lg:max-h-none">
             <div className="p-5 border-b border-border-subtle">
               <div className="flex items-center justify-between mb-4">
                 {/* Source & Block Count Badges */}
@@ -60,38 +60,38 @@ export function DashboardSkeleton() {
           </aside>
 
           {/* MAIN CONTENT SKELETON */}
-          <main className="flex-1 overflow-y-auto bg-background-dark p-8 relative">
+          <main className="flex-1 overflow-y-auto bg-background-dark p-4 sm:p-6 lg:p-8 max-sm:p-3 relative">
 
             {/* Header Section */}
             <div className="flex flex-wrap items-center justify-between gap-6 mb-10">
               <div>
-                <h1 className="text-4xl font-black tracking-tight text-white/70 animate-pulse">
+                <h1 className="text-3xl sm:text-4xl max-sm:text-2xl font-black tracking-tight text-white/70 animate-pulse">
                   Loading Block...
                 </h1>
               </div>
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                 {/* Block Hash Button Placeholder */}
-                <div className="h-10 w-56 rounded-xl bg-surface-dark border border-border-subtle animate-pulse" />
+                <div className="h-10 w-full sm:w-56 md:w-64 rounded-xl bg-surface-dark border border-border-subtle animate-pulse" />
                 {/* Mempool Button Placeholder */}
-                <div className="h-10 w-28 rounded-xl bg-surface-dark border border-border-subtle animate-pulse" />
+                <div className="h-10 w-full sm:w-28 rounded-xl bg-surface-dark border border-border-subtle animate-pulse" />
               </div>
             </div>
 
             {/* Block Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+            <div className="grid grid-cols-1 max-sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5 max-sm:gap-3 mb-8">
               {Array.from({ length: 4 }).map((_, index) => (
-                <div key={index} className="sherlock-card p-6 rounded-2xl flex flex-col gap-1 border border-border-subtle bg-white/2">
-                  <div className="h-3 w-24 bg-white/10 rounded animate-pulse mb-2" />
-                  <div className="h-8 w-20 bg-white/20 rounded animate-pulse" />
-                  <div className="h-3 w-32 bg-white/10 rounded animate-pulse mt-1" />
+                <div key={index} className="sherlock-card p-6 max-sm:p-3 rounded-2xl flex flex-col gap-1 border border-border-subtle bg-white/2">
+                  <div className="h-3 w-24 max-sm:w-16 bg-white/10 rounded animate-pulse mb-2 max-sm:mb-1" />
+                  <div className="h-8 w-20 max-sm:h-6 max-sm:w-16 bg-white/20 rounded animate-pulse" />
+                  <div className="h-3 w-32 max-sm:w-24 bg-white/10 rounded animate-pulse mt-1" />
                 </div>
               ))}
             </div>
 
             {/* Script Distribution Visualization Section */}
-            <div className="sherlock-card rounded-2xl p-6 mb-10">
-              <div className="flex items-center justify-between mb-8">
-                <div className="h-3 w-40 bg-white/10 rounded animate-pulse" />
+            <div className="sherlock-card rounded-2xl p-6 max-sm:p-3 mb-10 max-sm:mb-6">
+              <div className="flex flex-col gap-4 max-sm:gap-2 md:flex-row md:items-center md:justify-between mb-8 max-sm:mb-4">
+                <div className="h-3 w-40 max-sm:w-32 bg-white/10 rounded animate-pulse" />
                 <div className="hidden md:flex flex-wrap gap-4">
                   {/* Legend Skeletons */}
                   {Array.from({ length: 7 }).map((_, index) => (
@@ -115,11 +115,28 @@ export function DashboardSkeleton() {
               </div>
 
               {/* Stat Values Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 mt-8 gap-4">
+              <div className="grid grid-cols-2 max-sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 mt-8 max-sm:mt-4 gap-4 max-sm:gap-2">
                 {Array.from({ length: 7 }).map((_, index) => (
-                  <div key={index} className="space-y-2">
-                    <div className="h-3 w-14 rounded bg-white/10 animate-pulse" />
-                    <div className="h-7 w-16 rounded bg-white/10 animate-pulse" />
+                  <div key={index} className="space-y-2 max-sm:space-y-1">
+                    <div className="h-3 w-14 max-sm:w-10 rounded bg-white/10 animate-pulse" />
+                    <div className="h-7 w-16 max-sm:h-5 max-sm:w-12 rounded bg-white/10 animate-pulse" />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Fee Rate Distribution Skeleton */}
+            <div className="sherlock-card rounded-2xl p-6 max-sm:p-3 mb-8 max-sm:mb-4">
+              <div className="flex items-center justify-between mb-4 max-sm:mb-2">
+                <div className="h-3 w-32 max-sm:w-24 bg-white/10 rounded animate-pulse" />
+                <div className="h-3 w-16 max-sm:w-12 bg-white/10 rounded animate-pulse" />
+              </div>
+              <div className="grid grid-cols-2 max-sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-3 max-sm:gap-2">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <div key={index} className="bg-white/2 border border-border-subtle rounded-xl p-3 max-sm:p-2 flex flex-col">
+                    <div className="h-2.5 w-10 max-sm:w-8 bg-white/10 rounded animate-pulse mb-2 max-sm:mb-1" />
+                    <div className="h-14 max-sm:h-10 bg-white/5 rounded-md animate-pulse" />
+                    <div className="h-3 w-6 max-sm:w-4 bg-white/10 rounded animate-pulse mt-2 max-sm:mt-1" />
                   </div>
                 ))}
               </div>
@@ -127,7 +144,7 @@ export function DashboardSkeleton() {
 
             {/* Transaction Explorer */}
             <div className="flex flex-col gap-5">
-              <div className="flex items-center justify-start">
+              <div className="flex flex-wrap items-center justify-start gap-3">
                 <h3 className="text-xl font-black text-white/80 tracking-tight animate-pulse">
                   Transaction Explorer
                 </h3>
@@ -135,19 +152,19 @@ export function DashboardSkeleton() {
 
               <div className="space-y-4">
                 {Array.from({ length: 6 }).map((_, index) => (
-                  <div key={index} className="sherlock-card rounded-2xl p-3 border border-border-subtle">
+                  <div key={index} className="sherlock-card rounded-2xl p-3 max-sm:p-2 border border-border-subtle">
                     <div className="flex sm:items-center gap-4 flex-col sm:flex-row">
 
                       {/* Icon Placeholder */}
                       <div className="w-11 h-11 rounded-xl bg-white/10 animate-pulse shrink-0" />
 
                       <div className="flex-1 min-w-0 w-full">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                           {/* TXID Placeholder */}
-                          <div className="h-4 w-48 sm:w-64 rounded bg-white/20 animate-pulse" />
+                          <div className="h-4 w-48 sm:w-64 max-sm:w-[150px] rounded bg-white/20 animate-pulse" />
 
                           {/* Badges Placeholder */}
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 mt-2 sm:mt-0">
                             <div className="h-5 w-16 rounded-full bg-white/10 animate-pulse" />
                             <div className="h-5 w-24 rounded-full bg-white/10 animate-pulse" />
                           </div>
