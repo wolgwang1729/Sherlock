@@ -34,7 +34,7 @@ const TransactionListLoader = ({ rows = 4 }: { rows?: number }) => (
         <div className="flex sm:items-center gap-4 flex-col sm:flex-row">
           <div className="w-11 h-11 rounded-xl bg-white/10 animate-pulse shrink-0" />
           <div className="flex-1 min-w-0 w-full space-y-2">
-            <div className="h-4 w-3/4 max-sm:w-[150px] rounded bg-white/10 animate-pulse" />
+            <div className="h-4 w-3/4 max-sm:w-37.5 rounded bg-white/10 animate-pulse" />
             <div className="h-3 w-1/2 rounded bg-white/10 animate-pulse" />
           </div>
           <div className="h-5 w-5 rounded bg-white/10 animate-pulse shrink-0" />
@@ -745,7 +745,7 @@ const TransactionItem = memo(({ tx, isExpanded, onToggle }: { tx: TransactionCha
           </div>
           <div className="flex-1 min-w-0 w-full">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <p className="text-sm font-bold font-mono text-white truncate max-w-48 sm:max-w-md max-sm:max-w-[150px]">{tx.txid}</p>
+              <p className="text-sm font-bold font-mono text-white truncate max-w-48 sm:max-w-md max-sm:max-w-37.5">{tx.txid}</p>
               <div className="flex items-center gap-2">
                 {riskLevel && (
                   <span className={`${riskLevel === 'High Risk' ? 'bg-red-500 text-white' : 'bg-orange-500/20 text-orange-400'} text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider whitespace-nowrap`}>

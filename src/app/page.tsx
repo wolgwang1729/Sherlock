@@ -161,7 +161,7 @@ export function DashboardSkeleton() {
                       <div className="flex-1 min-w-0 w-full">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                           {/* TXID Placeholder */}
-                          <div className="h-4 w-48 sm:w-64 max-sm:w-[150px] rounded bg-white/20 animate-pulse" />
+                          <div className="h-4 w-48 sm:w-64 max-sm:w-37.5 rounded bg-white/20 animate-pulse" />
 
                           {/* Badges Placeholder */}
                           <div className="flex items-center gap-2 mt-2 sm:mt-0">
