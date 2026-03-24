@@ -132,6 +132,8 @@ function TransactionFlowGraph({ tx }: { tx: TransactionChainAnalysis }) {
   const [showFlow, setShowFlow] = useState(false);
 
   useEffect(() => {
+    if (!showFlow) return;
+    
     const container = containerRef.current;
     if (!container) {
       return;
@@ -152,7 +154,7 @@ function TransactionFlowGraph({ tx }: { tx: TransactionChainAnalysis }) {
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [showFlow]);
 
   if (!tx.graph) {
     return null;
@@ -172,15 +174,14 @@ function TransactionFlowGraph({ tx }: { tx: TransactionChainAnalysis }) {
   const rightColumnX = 724;
   const txCenterY = graphHeight / 2;
   const txFeeShare = graph.total_input_sats > 0 ? (graph.fee_sats / graph.total_input_sats) * 100 : 0;
-  const horizontalGutter = 24;
-  const scaledViewportWidth = Math.max(availableWidth - horizontalGutter * 2, 320);
+  const scaledViewportWidth = availableWidth;
   const graphScale = availableWidth > 0 ? Math.min(1, scaledViewportWidth / canvasWidth) : 1;
   const scaledHeight = Math.ceil(graphHeight * graphScale);
   const scaledWidth = Math.ceil(canvasWidth * graphScale);
-  const canvasOffsetX = availableWidth > 0 ? Math.max(horizontalGutter, (availableWidth - scaledWidth) / 2) : 0;
+  const canvasOffsetX = availableWidth > 0 ? Math.max(0, (availableWidth - scaledWidth) / 2) : 0;
 
   return (
-    <div className="bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 rounded-3xl shadow-2xl relative p-5">
+    <div className="bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 rounded-3xl shadow-2xl relative p-5 max-sm:p-3">
       <button
         type="button"
         onClick={() => setShowFlow(!showFlow)}
@@ -188,7 +189,7 @@ function TransactionFlowGraph({ tx }: { tx: TransactionChainAnalysis }) {
         aria-expanded={showFlow}
         aria-label="Toggle visual transaction flow"
       >
-        <h3 className="text-xl font-bold text-white">Visual Transaction Flow</h3>
+        <h3 className="text-xl max-sm:text-lg font-bold text-white">Visual Transaction Flow</h3>
         {showFlow ? (
           <ChevronUp className="w-5 h-5 text-zinc-400" />
         ) : (
@@ -203,17 +204,17 @@ function TransactionFlowGraph({ tx }: { tx: TransactionChainAnalysis }) {
               <p className="text-sm text-zinc-400 mt-1">Inputs converge into the transaction and fan out into spend targets.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm min-w-full sm:min-w-0 sm:w-auto">
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
+              <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3 max-sm:px-3 max-sm:py-2">
                 <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">Inputs</p>
                 <p className="text-lg font-bold text-white mt-1">{inputs.length}</p>
                 <p className="text-xs text-zinc-400">{formatSats(graph.total_input_sats)} sats in</p>
               </div>
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
+              <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3 max-sm:px-3 max-sm:py-2">
                 <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">Outputs</p>
                 <p className="text-lg font-bold text-white mt-1">{outputs.length}</p>
                 <p className="text-xs text-zinc-400">{formatSats(graph.total_output_sats)} sats out</p>
               </div>
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
+              <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3 max-sm:px-3 max-sm:py-2">
                 <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">Fee</p>
                 <p className="text-lg font-bold text-white mt-1">{formatSats(graph.fee_sats)} sats</p>
                 <p className="text-xs text-zinc-400">{txFeeShare.toFixed(2)}% of total input value</p>
@@ -221,7 +222,7 @@ function TransactionFlowGraph({ tx }: { tx: TransactionChainAnalysis }) {
             </div>
           </div>
 
-          <div ref={containerRef} className="w-full overflow-hidden pb-2">
+          <div ref={containerRef} className="w-full pb-2 overflow-hidden">
             <div className="relative w-full" style={{ height: `${scaledHeight}px` }}>
               <div
                 className="absolute left-0 top-0 origin-top-left"
@@ -418,7 +419,7 @@ export default function TransactionVisualizer({ tx }: { tx: TransactionChainAnal
 
       <TransactionFlowGraph tx={tx} />
 
-      <div className="bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 rounded-3xl shadow-2xl relative p-5 mt-6">
+      <div className="bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 rounded-3xl shadow-2xl relative p-5 max-sm:p-3 mt-6">
         <button
           type="button"
           onClick={() => setShowMetadata(!showMetadata)}
@@ -426,7 +427,7 @@ export default function TransactionVisualizer({ tx }: { tx: TransactionChainAnal
           aria-expanded={showMetadata}
           aria-label="Toggle transaction metadata"
         >
-          <h3 className="text-xl font-bold text-white">Transaction Metadata</h3>
+          <h3 className="text-xl max-sm:text-lg font-bold text-white">Transaction Metadata</h3>
           {showMetadata ? (
             <ChevronUp className="w-5 h-5 text-zinc-400" />
           ) : (
@@ -437,31 +438,31 @@ export default function TransactionVisualizer({ tx }: { tx: TransactionChainAnal
         {showMetadata && (
           <>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3 max-sm:px-3 max-sm:py-2">
             <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">TXID</p>
             <div className="flex items-center mt-1">
-              <p className="text-xs font-mono text-white truncate">{tx.txid}</p>
+              <p className="text-xs font-mono text-white truncate max-sm:break-all max-sm:whitespace-normal max-sm:mr-1">{tx.txid}</p>
               <CopyButton value={tx.txid} />
             </div>
             {tx.wtxid && (
               <>
                 <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500 mt-3">WTXID</p>
                 <div className="flex items-center mt-1">
-                  <p className="text-xs font-mono text-zinc-200 truncate">{tx.wtxid}</p>
+                  <p className="text-xs font-mono text-zinc-200 truncate max-sm:break-all max-sm:whitespace-normal max-sm:mr-1">{tx.wtxid}</p>
                   <CopyButton value={tx.wtxid} />
                 </div>
               </>
             )}
           </div>
 
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3 max-sm:px-3 max-sm:py-2">
             <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">Fee Diagnostics</p>
             <p className="text-sm text-white font-semibold mt-1">{formatSats(tx.fee_sats ?? 0)} sats</p>
             <p className="text-xs text-zinc-400 mt-1">{(tx.fee_rate_sat_vb ?? 0).toFixed(2)} sat/vB</p>
             <p className="text-xs text-zinc-400">{formatPercent(tx.fee_pct_of_input)} of input value</p>
           </div>
 
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3 max-sm:px-3 max-sm:py-2">
             <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">Execution Profile</p>
             <p className="text-xs text-zinc-300 mt-1">Version: <span className="font-semibold text-white">{tx.version ?? 0}</span></p>
             <p className="text-xs text-zinc-300">Weight / vBytes: <span className="font-semibold text-white">{tx.weight ?? 0} / {tx.vbytes ?? 0}</span></p>
@@ -469,7 +470,7 @@ export default function TransactionVisualizer({ tx }: { tx: TransactionChainAnal
             <p className="text-xs text-zinc-300">RBF: <span className={`font-semibold ${tx.rbf_signaling ? 'text-amber-300' : 'text-emerald-300'}`}>{tx.rbf_signaling ? 'Enabled' : 'Off'}</span></p>
           </div>
 
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3 max-sm:px-3 max-sm:py-2">
             <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">SegWit Efficiency</p>
             {tx.segwit_savings ? (
               <>
@@ -483,20 +484,20 @@ export default function TransactionVisualizer({ tx }: { tx: TransactionChainAnal
             )}
           </div>
 
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3 max-sm:px-3 max-sm:py-2">
             <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">Script Composition</p>
             <p className="text-xs text-zinc-300 mt-1">Inputs: <span className="text-white">{scriptCountsLabel(tx.input_script_counts)}</span></p>
             <p className="text-xs text-zinc-300 mt-2">Outputs: <span className="text-white">{scriptCountsLabel(tx.output_script_counts)}</span></p>
           </div>
 
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3 max-sm:px-3 max-sm:py-2">
             <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500">OP_RETURN</p>
             {tx.has_op_return && opReturnDetails.length > 0 ? (
               <div className="space-y-2 mt-1">
                 {opReturnDetails.slice(0, 2).map((detail) => (
                   <div key={`op-return-${detail.n}`} className="text-xs text-zinc-300">
                     <p>Output #{detail.n} · {detail.protocol}</p>
-                    <p className="text-zinc-400 truncate">{detail.data_utf8 || detail.data_hex}</p>
+                    <p className="text-zinc-400 truncate max-sm:break-all max-sm:whitespace-normal">{detail.data_utf8 || detail.data_hex}</p>
                   </div>
                 ))}
                 {opReturnDetails.length > 2 && <p className="text-[11px] text-zinc-500">+{opReturnDetails.length - 2} more OP_RETURN outputs</p>}
@@ -510,7 +511,7 @@ export default function TransactionVisualizer({ tx }: { tx: TransactionChainAnal
           {warnings.length > 0 && (
             <div className="mt-4 pt-4 border-t border-zinc-800">
               <p className="text-[10px] uppercase tracking-[0.24em] text-zinc-500 mb-2">Warnings</p>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 max-sm:gap-1.5">
                 {warnings.map((warning) => (
                   <span
                     key={`${warning.code}-${warning.severity}`}
@@ -527,15 +528,15 @@ export default function TransactionVisualizer({ tx }: { tx: TransactionChainAnal
       </div>
 
       {/* ── Overview head ── */}
-      <div className="bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 rounded-3xl shadow-2xl relative p-5">
+      <div className="bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 rounded-3xl shadow-2xl relative p-5 max-sm:p-3">
         <button
           type="button"
           onClick={() => setShowHeuristics(!showHeuristics)}
-          className={`w-full text-left flex items-center justify-between gap-3 cursor-pointer ${showHeuristics ? 'mb-6' : ''}`}
+          className={`w-full text-left flex items-center justify-between gap-3 cursor-pointer ${showHeuristics ? 'mb-6 max-sm:mb-4' : ''}`}
           aria-expanded={showHeuristics}
           aria-label="Toggle heuristic analysis results"
         >
-          <h3 className="text-xl font-bold text-white flex items-center gap-2 relative z-10">
+          <h3 className="text-xl max-sm:text-lg font-bold text-white flex items-center gap-2 relative z-10">
             Heuristic Analysis Results
           </h3>
           {showHeuristics ? (
@@ -564,7 +565,7 @@ export default function TransactionVisualizer({ tx }: { tx: TransactionChainAnal
               }
 
               return (
-                <div key={id} className={`${bg} border ${border} rounded-2xl p-4 flex flex-col transition-all group relative`}>
+                <div key={id} className={`${bg} border ${border} rounded-2xl p-4 max-sm:p-3 flex flex-col transition-all group relative`}>
                   <div className="flex items-start justify-between mb-3 shrink-0">
                     <div className="flex items-center gap-2">
                       {icon}
@@ -621,7 +622,7 @@ export default function TransactionVisualizer({ tx }: { tx: TransactionChainAnal
                           return (
                             <div key={key} className="flex flex-col gap-0.5 pt-1 border-t border-zinc-800/50 mt-1">
                               <span className="text-[11px] text-zinc-500 uppercase tracking-widest font-semibold">{key.replace(/_/g, ' ')}</span>
-                              <span className="text-zinc-300 font-mono text-[11px] break-all leading-relaxed bg-black/50 px-2 py-1 rounded-lg border border-zinc-800/40">
+                              <span className="text-zinc-300 font-mono text-[11px] break-all leading-relaxed bg-black/50 px-2 py-1 max-sm:px-1.5 rounded-lg border border-zinc-800/40">
                                 {displayVal}
                               </span>
                             </div>
@@ -648,8 +649,8 @@ export default function TransactionVisualizer({ tx }: { tx: TransactionChainAnal
         </button>
 
         {showRaw && (
-          <div className="mt-4 bg-zinc-950 border border-zinc-800 rounded-xl p-4 overflow-x-auto">
-            <pre className="text-xs text-zinc-400 font-mono">{JSON.stringify(tx, null, 2)}</pre>
+          <div className="mt-4 bg-zinc-950 border border-zinc-800 rounded-xl p-4 max-sm:p-2 overflow-x-auto">
+            <pre className="text-xs max-sm:text-[10px] text-zinc-400 font-mono">{JSON.stringify(tx, null, 2)}</pre>
           </div>
         )}
       </div>

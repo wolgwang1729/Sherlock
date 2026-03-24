@@ -16,11 +16,11 @@ const StatTextLoader = ({ widthClass = 'w-24' }: { widthClass?: string }) => (
 const ScriptDistributionLoader = () => (
   <>
     <div className="h-3 w-full bg-white/10 rounded-full animate-pulse" aria-label="Loading script distribution" />
-    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 mt-8 gap-4">
+    <div className="grid grid-cols-2 max-sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 mt-8 max-sm:mt-4 gap-4 max-sm:gap-2">
       {Array.from({ length: 7 }).map((_, index) => (
-        <div key={index} className="space-y-2">
-          <div className="h-3 w-14 rounded bg-white/10 animate-pulse" />
-          <div className="h-7 w-16 rounded bg-white/10 animate-pulse" />
+        <div key={index} className="space-y-2 max-sm:space-y-1">
+          <div className="h-3 w-14 max-sm:w-10 rounded bg-white/10 animate-pulse" />
+          <div className="h-7 max-sm:h-5 w-16 max-sm:w-12 rounded bg-white/10 animate-pulse" />
         </div>
       ))}
     </div>
@@ -30,11 +30,11 @@ const ScriptDistributionLoader = () => (
 const TransactionListLoader = ({ rows = 4 }: { rows?: number }) => (
   <div className="space-y-4" aria-label="Loading transactions">
     {Array.from({ length: rows }).map((_, index) => (
-      <div key={index} className="sherlock-card rounded-2xl p-3 border border-border-subtle">
+      <div key={index} className="sherlock-card rounded-2xl p-3 max-sm:p-2 border border-border-subtle">
         <div className="flex sm:items-center gap-4 flex-col sm:flex-row">
           <div className="w-11 h-11 rounded-xl bg-white/10 animate-pulse shrink-0" />
           <div className="flex-1 min-w-0 w-full space-y-2">
-            <div className="h-4 w-3/4 rounded bg-white/10 animate-pulse" />
+            <div className="h-4 w-3/4 max-sm:w-[150px] rounded bg-white/10 animate-pulse" />
             <div className="h-3 w-1/2 rounded bg-white/10 animate-pulse" />
           </div>
           <div className="h-5 w-5 rounded bg-white/10 animate-pulse shrink-0" />
@@ -116,25 +116,25 @@ function FeeRateDistribution({ feeRates }: { feeRates: number[] }) {
   const maxCount = Math.max(1, ...buckets.map((bucket) => bucket.count));
 
   return (
-    <div className="sherlock-card rounded-2xl p-6 mb-8">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500">Fee Rate Distribution</h3>
-        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">sat/vB bins</span>
+    <div className="sherlock-card rounded-2xl p-6 max-sm:p-3 mb-8 max-sm:mb-4">
+      <div className="flex items-center justify-between mb-4 max-sm:mb-2">
+        <h3 className="text-xs max-sm:text-[10px] font-bold uppercase tracking-widest text-slate-500">Fee Rate Distribution</h3>
+        <span className="text-[10px] max-sm:text-[8px] text-slate-500 font-bold uppercase tracking-wider">sat/vB bins</span>
       </div>
 
       {buckets.length === 0 ? (
-        <p className="text-sm text-slate-500">No fee-rate samples available for this block.</p>
+        <p className="text-sm max-sm:text-xs text-slate-500">No fee-rate samples available for this block.</p>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 max-sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-3 max-sm:gap-2">
           {buckets.map((bucket) => {
             const barHeightPct = (bucket.count / maxCount) * 100;
             return (
-              <div key={bucket.label} className="bg-white/2 border border-border-subtle rounded-xl p-3">
-                <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-2">{bucket.label}</p>
-                <div className="h-14 bg-white/5 rounded-md relative overflow-hidden">
+              <div key={bucket.label} className="bg-white/2 border border-border-subtle rounded-xl p-3 max-sm:p-2">
+                <p className="text-[10px] max-sm:text-[8px] uppercase tracking-wider text-slate-500 font-bold mb-2 max-sm:mb-1">{bucket.label}</p>
+                <div className="h-14 max-sm:h-10 bg-white/5 rounded-md relative overflow-hidden">
                   <div className="absolute left-0 right-0 bottom-0 bg-primary/70" style={{ height: `${barHeightPct}%` }} />
                 </div>
-                <p className="text-sm font-black text-white mt-2">{bucket.count}</p>
+                <p className="text-sm max-sm:text-xs font-black text-white mt-2 max-sm:mt-1">{bucket.count}</p>
               </div>
             );
           })}
@@ -248,7 +248,7 @@ export default function BlockVisualizer({
 
       <div className="flex flex-1 overflow-hidden flex-col lg:flex-row">
         {/* Sidebar Navigation */}
-        <aside className="w-full lg:w-72 border-b lg:border-b-0 lg:border-r border-border-subtle flex flex-col bg-background-dark overflow-hidden shrink-0 max-h-72 lg:max-h-none">
+        <aside className="w-full lg:w-72 border-b lg:border-b-0 lg:border-r border-border-subtle flex flex-col bg-background-dark overflow-hidden shrink-0 max-h-72 max-sm:max-h-48 lg:max-h-none">
           <div className="p-5 border-b border-border-subtle">
             <div className="flex items-center justify-between mb-4">
               <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 truncate max-w-35" title={report.file}>Source: {report.file}</span>
@@ -297,11 +297,11 @@ export default function BlockVisualizer({
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto bg-background-dark p-4 sm:p-6 lg:p-8 relative">
+        <main className="flex-1 overflow-y-auto bg-background-dark p-4 sm:p-6 lg:p-8 max-sm:p-3 relative">
           {/* Header Section */}
           <div className="flex flex-wrap items-center justify-between gap-6 mb-10">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white">Block #{formatStats(selectedBlock.block_height)}</h1>
+              <h1 className="text-3xl sm:text-4xl max-sm:text-2xl font-black tracking-tight text-white">Block #{formatStats(selectedBlock.block_height)}</h1>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <div className="px-4 py-2 bg-surface-dark border border-border-subtle rounded-xl flex items-center gap-2 h-fit min-w-0 max-w-full">
@@ -323,76 +323,76 @@ export default function BlockVisualizer({
           </div>
 
           {/* Block Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-            <div className="sherlock-card p-6 rounded-2xl flex flex-col gap-1 group hover:border-primary/30 transition-colors">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Total Transactions</p>
+          <div className="grid grid-cols-1 max-sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-5 max-sm:gap-3 mb-8">
+            <div className="sherlock-card p-6 max-sm:p-3 rounded-2xl flex flex-col gap-1 group hover:border-primary/30 transition-colors">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest max-sm:text-[8px]">Total Transactions</p>
               {isSelectedBlockLoading ? (
                 <>
-                  <StatValueLoader widthClass="w-24" />
+                  <StatValueLoader widthClass="w-24 max-sm:w-16 max-sm:h-6" />
                   <StatTextLoader widthClass="w-28" />
                 </>
               ) : (
                 <>
-                  <p className="text-2xl font-black text-white">{formatStats(analysis_summary?.total_transactions_analyzed)}</p>
-                  <p className="text-xs text-emerald-500 font-bold flex items-center gap-1">
-                    <TrendingUp className="size-4" /> Analyzed
+                  <p className="text-2xl max-sm:text-lg font-black text-white">{formatStats(analysis_summary?.total_transactions_analyzed)}</p>
+                  <p className="text-xs max-sm:text-[10px] text-emerald-500 font-bold flex items-center gap-1">
+                    <TrendingUp className="size-4 max-sm:size-3" /> Analyzed
                   </p>
                 </>
               )}
             </div>
-            <div className={isSelectedBlockLoading ? "sherlock-card p-6 rounded-2xl flex flex-col gap-1 group hover:border-primary/30 transition-colors" : analysis_summary?.flagged_transactions > 0 ? "bg-red-500/5 border border-red-500/20 p-6 rounded-2xl flex flex-col gap-1 relative overflow-hidden group" : "sherlock-card p-6 rounded-2xl flex flex-col gap-1 group hover:border-primary/30 transition-colors"}>
+            <div className={isSelectedBlockLoading ? "sherlock-card p-6 max-sm:p-3 rounded-2xl flex flex-col gap-1 group hover:border-primary/30 transition-colors" : analysis_summary?.flagged_transactions > 0 ? "bg-red-500/5 border border-red-500/20 p-6 max-sm:p-3 rounded-2xl flex flex-col gap-1 relative overflow-hidden group" : "sherlock-card p-6 max-sm:p-3 rounded-2xl flex flex-col gap-1 group hover:border-primary/30 transition-colors"}>
               {!isSelectedBlockLoading && analysis_summary?.flagged_transactions > 0 && (
                 <div className="absolute -top-2 -right-2 p-2 opacity-5">
-                  <AlertTriangle className="size-20 text-red-500" />
+                  <AlertTriangle className="size-20 max-sm:size-12 text-red-500" />
                 </div>
               )}
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Flagged Activity</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest max-sm:text-[8px]">Flagged Activity</p>
               {isSelectedBlockLoading ? (
                 <>
-                  <StatValueLoader widthClass="w-16" />
+                  <StatValueLoader widthClass="w-16 max-sm:w-12 max-sm:h-6" />
                   <StatTextLoader widthClass="w-36" />
                 </>
               ) : (
                 <>
-                  <p className={`text-2xl font-black ${analysis_summary?.flagged_transactions > 0 ? 'text-red-500' : 'text-white'}`}>{formatStats(analysis_summary?.flagged_transactions)}</p>
+                  <p className={`text-2xl max-sm:text-lg font-black ${analysis_summary?.flagged_transactions > 0 ? 'text-red-500' : 'text-white'}`}>{formatStats(analysis_summary?.flagged_transactions)}</p>
                   {analysis_summary?.flagged_transactions > 0 ? (
-                    <p className="text-xs text-red-400 font-bold flex items-center gap-1">
-                      <AlertCircle className="size-4" /> Flagged Transactions
+                    <p className="text-xs max-sm:text-[10px] text-red-400 font-bold flex items-center gap-1 max-sm:flex-wrap">
+                      <AlertCircle className="size-4 max-sm:size-3 shrink-0" /> <span className="max-sm:truncate w-full block">Flagged Txs</span>
                     </p>
                   ) : (
-                    <p className="text-xs text-emerald-500 font-bold flex items-center gap-1">
-                      <CheckCircle2 className="size-4" /> No Flagged Transactions
+                    <p className="text-xs max-sm:text-[10px] text-emerald-500 font-bold flex items-center gap-1 max-sm:flex-wrap">
+                      <CheckCircle2 className="size-4 max-sm:size-3 shrink-0" /> <span className="max-sm:truncate w-full block">No Flagged</span>
                     </p>
                   )}
                 </>
               )}
             </div>
-            <div className="sherlock-card p-6 rounded-2xl flex flex-col gap-1 group hover:border-primary/30 transition-colors">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Median Fee Rate</p>
+            <div className="sherlock-card p-6 max-sm:p-3 rounded-2xl flex flex-col gap-1 group hover:border-primary/30 transition-colors">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest max-sm:text-[8px]">Median Fee Rate</p>
               {isSelectedBlockLoading ? (
                 <>
-                  <StatValueLoader widthClass="w-28" />
+                  <StatValueLoader widthClass="w-28 max-sm:w-20 max-sm:h-6" />
                   <StatTextLoader widthClass="w-24" />
                 </>
               ) : (
                 <>
-                  <p className="text-2xl font-black text-white">{formatStats(feeStats.median_sat_vb)} <span className="text-xs font-medium text-slate-500">sat/vB</span></p>
-                  <p className="text-xs text-slate-400 font-bold flex items-center gap-1">
+                  <p className="text-2xl max-sm:text-lg font-black text-white">{formatStats(feeStats.median_sat_vb)} <span className="text-xs max-sm:text-[10px] font-medium text-slate-500">sat/vB</span></p>
+                  <p className="text-xs max-sm:text-[10px] text-slate-400 font-bold flex items-center gap-1">
                     Max: {formatStats(feeStats.max_sat_vb)} s/vB
                   </p>
                 </>
               )}
             </div>
-            <div className="sherlock-card p-6 rounded-2xl flex flex-col gap-1 group hover:border-primary/30 transition-colors">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Script Diversity</p>
+            <div className="sherlock-card p-6 max-sm:p-3 rounded-2xl flex flex-col gap-1 group hover:border-primary/30 transition-colors">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest max-sm:text-[8px]">Script Diversity</p>
               {isSelectedBlockLoading ? (
                 <>
-                  <StatValueLoader widthClass="w-24" />
+                  <StatValueLoader widthClass="w-24 max-sm:w-16 max-sm:h-6" />
                   <div className="w-full bg-white/10 h-1.5 rounded-full mt-2 overflow-hidden animate-pulse" />
                 </>
               ) : (
                 <>
-                  <p className="text-2xl font-black text-white">{diversityScore}% <span className="text-xs font-medium text-slate-500">Modern</span></p>
+                  <p className="text-2xl max-sm:text-lg font-black text-white">{diversityScore}% <span className="text-xs max-sm:text-[10px] font-medium text-slate-500">Modern</span></p>
                   <div className="w-full bg-white/5 h-1.5 rounded-full mt-2 overflow-hidden">
                     <div className="bg-primary h-full rounded-full" style={{ width: `${diversityScore}%` }}></div>
                   </div>
@@ -402,9 +402,9 @@ export default function BlockVisualizer({
           </div>
 
           {/* Visualization Section */}
-          <div className="sherlock-card rounded-2xl p-6 mb-10">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500">Script Distribution Analysis</h3>
+          <div className="sherlock-card rounded-2xl p-6 max-sm:p-3 mb-10 max-sm:mb-6">
+            <div className="flex flex-col gap-4 max-sm:gap-2 md:flex-row md:items-center md:justify-between mb-8 max-sm:mb-4">
+              <h3 className="text-xs max-sm:text-[10px] font-bold uppercase tracking-widest text-slate-500">Script Distribution Analysis</h3>
               <div className="hidden md:flex flex-wrap gap-4">
                 <div className="flex items-center gap-1.5">
                   <div className="size-2.5 rounded-full bg-primary shadow-[0_0_8px_rgba(59,73,255,0.4)]"></div>
@@ -449,34 +449,34 @@ export default function BlockVisualizer({
                   <div className="bg-amber-500 h-full" style={{ width: `${getPercentage(opReturnCount)}%` }} title={`OP_RETURN: ${getPercentage(opReturnCount).toFixed(1)}%`}></div>
                   <div className="bg-slate-500 h-full" style={{ width: `${getPercentage(unknownCount)}%` }} title={`Unknown: ${getPercentage(unknownCount).toFixed(1)}%`}></div>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 mt-8 gap-4">
+                <div className="grid grid-cols-2 max-sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 mt-8 max-sm:mt-4 gap-4 max-sm:gap-2">
                   <div>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1 truncate">P2WPKH</p>
-                    <p className="text-xl font-black text-primary">{getPercentage(p2wpkhCount).toFixed(1)}%</p>
+                    <p className="text-[10px] max-sm:text-[8px] text-slate-500 font-bold uppercase tracking-wider mb-1 max-sm:mb-0.5 truncate">P2WPKH</p>
+                    <p className="text-xl max-sm:text-base font-black text-primary">{getPercentage(p2wpkhCount).toFixed(1)}%</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1 truncate">P2TR</p>
-                    <p className="text-xl font-black text-cyan-400">{getPercentage(p2trCount).toFixed(1)}%</p>
+                    <p className="text-[10px] max-sm:text-[8px] text-slate-500 font-bold uppercase tracking-wider mb-1 max-sm:mb-0.5 truncate">P2TR</p>
+                    <p className="text-xl max-sm:text-base font-black text-cyan-400">{getPercentage(p2trCount).toFixed(1)}%</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1 truncate">P2SH</p>
-                    <p className="text-xl font-black text-purple-500">{getPercentage(p2shCount).toFixed(1)}%</p>
+                    <p className="text-[10px] max-sm:text-[8px] text-slate-500 font-bold uppercase tracking-wider mb-1 max-sm:mb-0.5 truncate">P2SH</p>
+                    <p className="text-xl max-sm:text-base font-black text-purple-500">{getPercentage(p2shCount).toFixed(1)}%</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1 truncate">P2PKH</p>
-                    <p className="text-xl font-black text-pink-500">{getPercentage(p2pkhCount).toFixed(1)}%</p>
+                    <p className="text-[10px] max-sm:text-[8px] text-slate-500 font-bold uppercase tracking-wider mb-1 max-sm:mb-0.5 truncate">P2PKH</p>
+                    <p className="text-xl max-sm:text-base font-black text-pink-500">{getPercentage(p2pkhCount).toFixed(1)}%</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1 truncate">P2WSH</p>
-                    <p className="text-xl font-black text-emerald-400">{getPercentage(p2wshCount).toFixed(1)}%</p>
+                    <p className="text-[10px] max-sm:text-[8px] text-slate-500 font-bold uppercase tracking-wider mb-1 max-sm:mb-0.5 truncate">P2WSH</p>
+                    <p className="text-xl max-sm:text-base font-black text-emerald-400">{getPercentage(p2wshCount).toFixed(1)}%</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1 truncate">OP_RETURN</p>
-                    <p className="text-xl font-black text-amber-500">{getPercentage(opReturnCount).toFixed(1)}%</p>
+                    <p className="text-[10px] max-sm:text-[8px] text-slate-500 font-bold uppercase tracking-wider mb-1 max-sm:mb-0.5 truncate">OP_RETURN</p>
+                    <p className="text-xl max-sm:text-base font-black text-amber-500">{getPercentage(opReturnCount).toFixed(1)}%</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1 truncate">Unknown</p>
-                    <p className="text-xl font-black text-slate-400">{getPercentage(unknownCount).toFixed(1)}%</p>
+                    <p className="text-[10px] max-sm:text-[8px] text-slate-500 font-bold uppercase tracking-wider mb-1 max-sm:mb-0.5 truncate">Unknown</p>
+                    <p className="text-xl max-sm:text-base font-black text-slate-400">{getPercentage(unknownCount).toFixed(1)}%</p>
                   </div>
                 </div>
               </>
@@ -511,7 +511,7 @@ export default function BlockVisualizer({
                     setVisibleTxCount(50);
                     setExpandedTxId(null);
                   }}
-                  className="bg-surface-dark border border-border-subtle rounded-lg px-3 py-2 text-sm text-slate-200 w-full md:w-auto"
+                  className="bg-surface-dark border border-border-subtle rounded-lg px-3 py-2 text-sm max-sm:text-xs text-slate-200 w-full md:w-auto"
                 >
                   {CLASSIFICATION_FILTERS.map((option) => (
                     <option key={option.value} value={option.value}>{option.label}</option>
@@ -526,7 +526,7 @@ export default function BlockVisualizer({
                     setVisibleTxCount(50);
                     setExpandedTxId(null);
                   }}
-                  className="bg-surface-dark border border-border-subtle rounded-lg px-3 py-2 text-sm text-slate-200 w-full md:w-auto"
+                  className="bg-surface-dark border border-border-subtle rounded-lg px-3 py-2 text-sm max-sm:text-xs text-slate-200 w-full md:w-auto"
                 >
                   {HEURISTIC_FILTERS.map((option) => (
                     <option key={option.value} value={option.value}>{option.label}</option>
@@ -709,14 +709,14 @@ const TransactionItem = memo(({ tx, isExpanded, onToggle }: { tx: TransactionCha
 
   return (
     <div ref={itemRef} className={`${cardClass} relative scroll-mt-6`}>
-      <div className="p-3" onClick={onToggle}>
+      <div className="p-3 max-sm:p-2" onClick={onToggle}>
         <div className="flex sm:items-center gap-4 flex-col sm:flex-row">
           <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${iconBg}`}>
             {icon}
           </div>
           <div className="flex-1 min-w-0 w-full">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <p className="text-sm font-bold font-mono text-white truncate max-w-48 sm:max-w-md">{tx.txid}</p>
+              <p className="text-sm font-bold font-mono text-white truncate max-w-48 sm:max-w-md max-sm:max-w-[150px]">{tx.txid}</p>
               <div className="flex items-center gap-2">
                 {riskLevel && (
                   <span className={`${riskLevel === 'High Risk' ? 'bg-red-500 text-white' : 'bg-orange-500/20 text-orange-400'} text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider whitespace-nowrap`}>
@@ -728,7 +728,7 @@ const TransactionItem = memo(({ tx, isExpanded, onToggle }: { tx: TransactionCha
                 </span>
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-2 mt-2">
+            <div className="flex flex-wrap items-center gap-2 mt-2 max-sm:overflow-x-auto max-sm:flex-nowrap max-sm:scrollbar-hide">
               {hasRbf && (
                 <span className="text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider bg-amber-500/15 text-amber-300 border border-amber-500/30">
                   RBF
