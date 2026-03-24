@@ -631,11 +631,17 @@ const TransactionItem = memo(({ tx, isExpanded, onToggle }: { tx: TransactionCha
   let iconBg = 'bg-zinc-800/50 border border-zinc-700/50 text-slate-300';
 
   let classificationName = 'Unknown';
-  if (tx.classification) {
+  if (tx.is_coinbase) {
+    classificationName = 'Coinbase';
+    badgeClass = 'bg-yellow-500/20 text-yellow-400';
+    iconBg = 'bg-yellow-500/10 border border-yellow-500/20 text-yellow-400';
+    cardClass += ' border-l-4 border-l-yellow-500 bg-yellow-500/[0.02] hover:bg-yellow-500/[0.04]';
+  } else if (tx.classification) {
     classificationName = tx.classification.split('_').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   }
 
-  if (riskLevel === 'High Risk' || tx.classification === 'coinjoin') {
+  if (!tx.is_coinbase) {
+    if (riskLevel === 'High Risk' || tx.classification === 'coinjoin') {
     icon = <AlertTriangle className="size-5" />;
     badgeClass = 'bg-red-500/20 text-red-500';
     cardClass = 'sherlock-card border-l-4 border-l-red-500 bg-red-500/[0.02] rounded-2xl cursor-pointer hover:bg-red-500/[0.04] transition-all group';
@@ -656,11 +662,12 @@ const TransactionItem = memo(({ tx, isExpanded, onToggle }: { tx: TransactionCha
     icon = <Network className="size-5" />;
     badgeClass = 'bg-indigo-500/20 text-indigo-400';
     iconBg = 'bg-indigo-500/10 border border-indigo-500/20 text-indigo-400';
-  } else {
+  } else if (!tx.is_coinbase) {
     icon = <ShieldQuestion className="size-5" />;
     badgeClass = 'bg-zinc-800 text-zinc-300';
     iconBg = 'bg-zinc-800/80 border border-zinc-700 text-zinc-400 shadow-[inset_0_1px_4px_rgba(0,0,0,0.5)]';
   }
+}
 
   useEffect(() => {
     if (!isExpanded) {
@@ -712,7 +719,7 @@ const TransactionItem = memo(({ tx, isExpanded, onToggle }: { tx: TransactionCha
       <div className="p-3 max-sm:p-2" onClick={onToggle}>
         <div className="flex sm:items-center gap-4 flex-col sm:flex-row">
           <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${iconBg}`}>
-            {icon}
+            {tx.is_coinbase ? <Box className="size-5" /> : icon}
           </div>
           <div className="flex-1 min-w-0 w-full">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">

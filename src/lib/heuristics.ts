@@ -229,6 +229,7 @@ export function analyzeTransactionHeuristics(tx: TransactionAnalysis, context: B
     output_count: tx.vout.length,
     input_txids: Array.from(new Set(tx.vin.filter((input) => !input.coinbase).map((input) => input.txid))),
     output_addresses: Array.from(new Set(tx.vout.map((output) => output.address).filter((address): address is string => Boolean(address)))).slice(0, 8),
+    is_coinbase: tx.vin.some((input) => input.coinbase),
     graph: {
       total_input_sats: tx.total_input_sats,
       total_output_sats: tx.total_output_sats,

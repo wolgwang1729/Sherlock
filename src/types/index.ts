@@ -226,6 +226,7 @@ export interface TransactionChainAnalysis {
   input_txids?: string[];
   output_addresses?: string[];
   graph?: TransactionGraphData;
+  is_coinbase?: boolean;
 }
 
 export interface FeeRateStats {
