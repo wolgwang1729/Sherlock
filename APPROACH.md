@@ -1,6 +1,6 @@
 # Approach
 
-This project performs lightweight Bitcoin transaction chain analysis over Core-style blk/rev/xor inputs and emits both machine-readable JSON and a human-readable Markdown report. The implementation is intentionally rule-based: it tries to surface likely transaction patterns quickly, with explicit low/medium/high confidence tiers, rather than claiming perfect wallet attribution or deanonymization.
+This project performs lightweight Bitcoin transaction chain analysis over Core-style blk/rev/xor inputs and emits machine-readable JSON that is presented through interactive web visualizations. The implementation is intentionally rule-based: it tries to surface likely transaction patterns quickly, with explicit low/medium/high confidence tiers, rather than claiming perfect wallet attribution or deanonymization.
 
 ---
 
@@ -511,7 +511,7 @@ The system distinguishes between reporting normalization and ownership compatibi
 
 Prevout reconstruction is also a hard dependency for most non-coinbase heuristics. The analyzer uses undo data to recover input value and previous output script information; without that data, input script family comparisons, fee calculations, and several ownership-style heuristics would degrade sharply. This is why `src/lib/block.ts` validates that each parsed block can be paired with compatible undo records before running the heuristic pass.
 
-Finally, `buildBlockChainAnalysis` and `renderMarkdownReport` in `src/lib/block.ts` aggregate the results into file-level and block-level summaries. The JSON output preserves the structured report schema from `src/types/index.ts`, while the Markdown output renders fee statistics, heuristic coverage, and notable transactions for human review.
+Finally, `buildBlockChainAnalysis` in `src/lib/block.ts` aggregates the results into file-level and block-level summaries. The JSON output preserves the structured report schema from `src/types/index.ts`, driving the interactive UI visualizations and providing comprehensive fee statistics, heuristic coverage, and notable transactions.
 
 ---
 
